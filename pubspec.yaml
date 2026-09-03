@@ -1,5 +1,5 @@
 name: three_trio
-description: 3TRIO — fresh standalone Flutter app.
+description: 3TRIO — premium adult social discovery app.
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -10,6 +10,18 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
+  google_fonts: ^6.2.1
+  shared_preferences: ^2.5.3
+  image_picker: ^1.1.2
+  geolocator: ^14.0.2
+  flutter_secure_storage: ^9.2.4
+  url_launcher: ^6.3.2
+  intl: ^0.20.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
 
 flutter:
   uses-material-design: true
