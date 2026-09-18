@@ -814,7 +814,3 @@ void _message(BuildContext context, String title, String message) {
 
 
 // RESTORED ORIGINAL UX LAYER
-class RestoredStartScreen extends StatefulWidget {
-  const RestoredStartScreen({super.key});
-  @override State<RestoredStartScreen> createState() => _RestoredStartState();
-}
