@@ -11,48 +11,37 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.35.2'
           channel: stable
           cache: true
-
       - name: Generate Android project
         run: flutter create --platforms=android --org com.threetrio .
-
       - name: Align Kotlin Gradle plugin
         run: sed -i 's/2.1.0/2.4.20/g' android/settings.gradle.kts
-
-      - name: Fix Kotlin compilerOptions for release
+      - name: Migrate Kotlin compilerOptions
         run: |
           python3 - <<'PY'
           from pathlib import Path
+          import re
           p = Path('android/app/build.gradle.kts')
           s = p.read_text()
-          s = s.replace('jvmTarget = JavaVersion.VERSION_11.toString()', 'jvmTarget = "11"')
-          s = s.replace('jvmTarget = JavaVersion.VERSION_11', 'jvmTarget = "11"')
+          s = re.sub(r'    kotlinOptions \{\n.*?\n    \}', '    compilerOptions {\n        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11\n    }', s, flags=re.S)
           p.write_text(s)
           PY
       - name: Remove generated test
         run: rm -rf test
-
       - name: Get dependencies
         run: flutter pub get
-
       - name: Analyze
         run: flutter analyze --no-fatal-infos --no-fatal-warnings
-
       - name: Build release APK
         run: flutter build apk --release
-
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: 3trio-release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
-
-# trigger rebuild
-# live APK build trigger 2026-09-18
