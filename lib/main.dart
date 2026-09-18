@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'services/firebase_service.dart';
+import 'services/notification_service.dart';
+import 'services/auth_service.dart';
+import 'services/firestore_service.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await FirebaseService.init();
+  await NotificationService.init();
   runApp(const TrioApp());
 }
 
@@ -44,7 +50,7 @@ class LoginScreen extends StatelessWidget { const LoginScreen({super.key}); @ove
  _login(c,'Continue with Google',Icons.g_mobiledata),_login(c,'Continue with Apple',Icons.apple),_login(c,'Continue with phone',Icons.phone,phone:true),
  const SizedBox(height:18),const Text('Verification is required before discovery.',textAlign:TextAlign.center,style:TextStyle(color:Colors.grey))
  ]));}
- Widget _login(BuildContext c,String text,IconData icon,{bool phone=false})=>Padding(padding:const EdgeInsets.only(bottom:12),child:SizedBox(width:double.infinity,height:54,child:OutlinedButton.icon(onPressed:()=>Navigator.push(c,MaterialPageRoute(builder:(_)=>phone?const PhoneLoginScreen():const OnboardingScreen())),icon:Icon(icon),label:Text(text))));}
+ Widget _login(BuildContext c,String text,IconData icon,{bool phone=false})=>Padding(padding:const EdgeInsets.only(bottom:12),child:SizedBox(width:double.infinity,height:54,child:OutlinedButton.icon(onPressed:() async { if(phone){ Navigator.push(c,MaterialPageRoute(builder:(_)=>const PhoneLoginScreen())); } else { try { final cred=await AuthService().google(); if(cred!=null && c.mounted) Navigator.push(c,MaterialPageRoute(builder:(_)=>const OnboardingScreen())); } catch(e){ if(c.mounted) ScaffoldMessenger.of(c).showSnackBar(SnackBar(content:Text('Google sign-in failed: $e'))); } } },icon:Icon(icon),label:Text(text))));}
 
 class PhoneLoginScreen extends StatefulWidget { const PhoneLoginScreen({super.key}); @override State<PhoneLoginScreen> createState()=>_PhoneState(); }
 class _PhoneState extends State<PhoneLoginScreen>{final phone=TextEditingController(); final otp=TextEditingController(); bool sent=false;
