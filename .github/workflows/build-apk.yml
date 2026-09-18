@@ -21,14 +21,14 @@ jobs:
         run: flutter create --platforms=android --org com.threetrio .
       - name: Align Kotlin Gradle plugin
         run: sed -i 's/2.1.0/2.4.20/g' android/settings.gradle.kts
-      - name: Migrate Kotlin compilerOptions
+      - name: Remove incompatible Kotlin jvmOptions block
         run: |
           python3 - <<'PY'
           from pathlib import Path
           import re
           p = Path('android/app/build.gradle.kts')
           s = p.read_text()
-          s = re.sub(r'    kotlinOptions \{\n.*?\n    \}', '    compilerOptions {\n        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11\n    }', s, flags=re.S)
+          s = re.sub(r'\n    kotlinOptions \{.*?\n    \}', '', s, flags=re.S)
           p.write_text(s)
           PY
       - name: Remove generated test
