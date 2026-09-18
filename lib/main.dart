@@ -3,6 +3,8 @@ import 'package:image_picker/image_picker.dart';
 import 'services/firebase_service.dart';
 import 'services/notification_service.dart';
 import 'services/auth_service.dart';
+import 'services/firestore_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -485,258 +487,235 @@ class CircleAction extends StatelessWidget {
 
 class FeedScreen extends StatelessWidget {
   const FeedScreen({super.key});
-  @override Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Community Feed'), actions: [IconButton(onPressed: () => _message(context, 'Create Post', 'Text, photo, video and audio post composer.'), icon: const Icon(Icons.add))]), body: ListView(padding: const EdgeInsets.all(12), children: const [
-    PostCard(name: '3TRIO Community', text: 'Meet openly. Connect intentionally. Keep it respectful and consensual.', image: 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=900'),
-    PostCard(name: 'Jordan', text: 'Looking for genuine connections and good conversation.', image: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=900'),
-  ]);
+  @override Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(title: const Text('Community Feed'), actions: [IconButton(onPressed: () => _message(context, 'Create Post', 'Post composer opened.'), icon: const Icon(Icons.add))]),
+    body: ListView(padding: const EdgeInsets.all(12), children: const [
+      PostCard(name: '3TRIO Community', text: 'Meet openly. Connect intentionally.', image: 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=900'),
+      PostCard(name: 'Jordan', text: 'Looking for genuine connections and good conversation.', image: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=900'),
+    ]),
+  );
 }
 class PostCard extends StatefulWidget {
   final String name, text, image;
   const PostCard({super.key, required this.name, required this.text, required this.image});
-  @override State<PostCard> createState() => _PostState();
+  @override State<PostCard> createState() => _PostCardState();
 }
-class _PostState extends State<PostCard> {
+class _PostCardState extends State<PostCard> {
   bool liked = false;
-  @override Widget build(BuildContext context) => Card(clipBehavior: Clip.antiAlias, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-    ListTile(leading: const CircleAvatar(child: Icon(Icons.person)), title: Text(widget.name), subtitle: const Text('Verified · Today')),
-    Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: Text(widget.text)),
-    const SizedBox(height: 10), Image.network(widget.image, height: 260, width: double.infinity, fit: BoxFit.cover),
-    Row(children: [IconButton(onPressed: () => setState(() => liked = !liked), icon: Icon(liked ? Icons.favorite : Icons.favorite_border, color: liked ? Colors.red : null)), IconButton(onPressed: () => _message(context, 'Comments', 'Comment composer opened.'), icon: const Icon(Icons.comment_outlined)), IconButton(onPressed: () => _message(context, 'Share', 'Share action selected.'), icon: const Icon(Icons.share_outlined))]),
-  ]));
+  @override Widget build(BuildContext context) => Card(
+    clipBehavior: Clip.antiAlias, margin: const EdgeInsets.only(bottom: 14),
+    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      ListTile(leading: const CircleAvatar(child: Icon(Icons.person)), title: Text(widget.name), subtitle: const Text('Verified · Today')),
+      Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: Text(widget.text)),
+      const SizedBox(height: 10),
+      Image.network(widget.image, height: 260, width: double.infinity, fit: BoxFit.cover),
+      Row(children: [
+        IconButton(onPressed: () => setState(() => liked = !liked), icon: Icon(liked ? Icons.favorite : Icons.favorite_border, color: liked ? Colors.red : null)),
+        IconButton(onPressed: () => _message(context, 'Comments', 'Comments opened.'), icon: const Icon(Icons.comment_outlined)),
+        IconButton(onPressed: () => _message(context, 'Share', 'Share opened.'), icon: const Icon(Icons.share_outlined)),
+      ]),
+    ]),
+  );
 }
-
 class MapScreen extends StatelessWidget {
   const MapScreen({super.key});
-  @override Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Nearby Map')), body: Padding(padding: const EdgeInsets.all(12), child: Column(children: [
-    const Text('Approximate locations only · exact GPS is never exposed.'), const SizedBox(height: 12),
-    Expanded(child: Container(decoration: BoxDecoration(color: const Color(0xFFE5EAF0), borderRadius: BorderRadius.circular(22)), child: Stack(children: [
-      const Center(child: Icon(Icons.map, size: 130, color: Colors.blueGrey)),
-      const Positioned(left: 25, top: 90, child: Chip(label: Text('Alex & Sam'))),
-      const Positioned(left: 190, top: 180, child: Chip(label: Text('Maya'))),
-      const Positioned(left: 95, top: 320, child: Chip(label: Text('Jordan'))),
-    ]))),
-  ]));
+  @override Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(title: const Text('Nearby Map')),
+    body: Padding(padding: const EdgeInsets.all(12), child: Column(children: [
+      const Text('Approximate locations only · exact GPS is never exposed.'),
+      const SizedBox(height: 12),
+      Expanded(child: Container(
+        decoration: BoxDecoration(color: const Color(0xFFE5EAF0), borderRadius: BorderRadius.circular(22)),
+        child: const Stack(children: [
+          Center(child: Icon(Icons.map, size: 130, color: Colors.blueGrey)),
+          Positioned(left: 25, top: 90, child: Chip(label: Text('Alex & Sam'))),
+          Positioned(left: 190, top: 180, child: Chip(label: Text('Maya'))),
+          Positioned(left: 95, top: 320, child: Chip(label: Text('Jordan'))),
+        ]),
+      )),
+    ]),
+  );
 }
-
 class LikesScreen extends StatelessWidget {
   const LikesScreen({super.key});
-  @override Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Likes & Pings')), body: ListView(padding: const EdgeInsets.all(12), children: [
-    const Card(child: ListTile(leading: Icon(Icons.favorite, color: Colors.red), title: Text('Someone nearby liked you'), subtitle: Text('Premium reveals who liked you.'))),
-    const Card(child: ListTile(leading: Icon(Icons.bolt), title: Text('Sam sent a Ping'))),
-    Card(child: ListTile(leading: const Icon(Icons.workspace_premium), title: const Text('3TRIO Premium'), subtitle: const Text('Unlimited likes · premium filters'), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PremiumScreen())))),
-  ]);
+  @override Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(title: const Text('Likes & Pings')),
+    body: ListView(padding: const EdgeInsets.all(12), children: [
+      const Card(child: ListTile(leading: Icon(Icons.favorite, color: Colors.red), title: Text('Someone nearby liked you'), subtitle: Text('Premium can reveal more details.'))),
+      const Card(child: ListTile(leading: Icon(Icons.bolt), title: Text('Sam sent a Ping'))),
+      ListTile(leading: const Icon(Icons.workspace_premium), title: const Text('3TRIO Premium'), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PremiumScreen()))),
+    ]),
+  );
 }
-
 class MessagesScreen extends StatelessWidget {
   const MessagesScreen({super.key});
-  @override Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Messages')), body: ListView(children: [
-    ListTile(leading: CircleAvatar(backgroundImage: NetworkImage(profiles[0].photo)), title: Text(profiles[0].name), subtitle: const Text('Protected chat'), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ChatScreen()))),
-    ListTile(leading: CircleAvatar(backgroundImage: NetworkImage(profiles[1].photo)), title: Text(profiles[1].name), subtitle: const Text('New connection'), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ChatScreen()))),
-  ]));
+  @override Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(title: const Text('Messages')),
+    body: ListView.builder(itemCount: profiles.length, itemBuilder: (_, i) {
+      final p = profiles[i];
+      return ListTile(leading: CircleAvatar(backgroundImage: NetworkImage(p.photo)), title: Text(p.name), subtitle: const Text('Protected chat'), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ChatScreen(profile: p))));
+    }),
+  );
 }
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
-  @override
-  State<ChatScreen> createState() => _ChatState();
+  final TrioProfile? profile;
+  const ChatScreen({super.key, this.profile});
+  @override State<ChatScreen> createState() => _ChatState();
 }
-
 class _ChatState extends State<ChatScreen> {
   final controller = TextEditingController();
   final messages = <String>['Hey 👋', 'Hi, nice to meet you.'];
-
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
+  @override void dispose() { controller.dispose(); super.dispose(); }
+  Future<void> send() async {
+    final value = controller.text.trim();
+    if (value.isEmpty) return;
+    setState(() { messages.add(value); controller.clear(); });
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    final other = widget.profile?.name;
+    if (uid != null && other != null) {
+      try { await FirestoreService().sendMessage(uid + '_' + other, uid, value); } catch (_) {}
+    }
   }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Protected Chat'),
-        actions: [
-          IconButton(
-            onPressed: () => _message(context, 'Audio call', 'Audio call integration point.'),
-            icon: const Icon(Icons.call_outlined),
-          ),
-          IconButton(
-            onPressed: () => _message(context, 'Video call', 'Video call integration point.'),
-            icon: const Icon(Icons.videocam_outlined),
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: messages.length,
-              itemBuilder: (context, i) {
-                return Align(
-                  alignment: i.isOdd ? Alignment.centerRight : Alignment.centerLeft,
-                  child: Container(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: i.isOdd ? const Color(0xFFFF3B5C) : Colors.grey.shade200,
-                      borderRadius: BorderRadius.circular(17),
-                    ),
-                    child: Text(
-                      messages[i],
-                      style: TextStyle(color: i.isOdd ? Colors.white : Colors.black),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-          SafeArea(
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: controller,
-                    decoration: const InputDecoration(hintText: 'Message…'),
-                  ),
-                ),
-                IconButton(
-                  onPressed: () {
-                    final value = controller.text.trim();
-                    if (value.isEmpty) return;
-                    setState(() {
-                      messages.add(value);
-                      controller.clear();
-                    });
-                  },
-                  icon: const Icon(Icons.send),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  @override Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(title: Text(widget.profile?.name ?? 'Protected Chat'), actions: [
+      IconButton(onPressed: () => _message(context, 'Audio call', 'Audio call flow opened.'), icon: const Icon(Icons.call_outlined)),
+      IconButton(onPressed: () => _message(context, 'Video call', 'Video call flow opened.'), icon: const Icon(Icons.videocam_outlined)),
+    ]),
+    body: Column(children: [
+      Expanded(child: ListView.builder(padding: const EdgeInsets.all(16), itemCount: messages.length, itemBuilder: (_, i) {
+        final mine = i.isOdd;
+        return Align(alignment: mine ? Alignment.centerRight : Alignment.centerLeft, child: Container(
+          margin: const EdgeInsets.only(bottom: 8), padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(color: mine ? const Color(0xFFFF3B5C) : Colors.grey.shade200, borderRadius: BorderRadius.circular(17)),
+          child: Text(messages[i], style: TextStyle(color: mine ? Colors.white : Colors.black)),
+        ));
+      })),
+      SafeArea(child: Padding(padding: const EdgeInsets.fromLTRB(10, 4, 10, 8), child: Row(children: [
+        Expanded(child: TextField(controller: controller, decoration: const InputDecoration(hintText: 'Message…'))),
+        IconButton(onPressed: send, icon: const Icon(Icons.send)),
+      ]))),
+    ]),
+  );
 }
-
 class MeScreen extends StatelessWidget {
   const MeScreen({super.key});
-  @override Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Me')), body: ListView(padding: const EdgeInsets.all(12), children: [
-    Card(child: Padding(padding: const EdgeInsets.all(18), child: Column(children: [CircleAvatar(radius: 55, backgroundImage: NetworkImage(profiles[0].photo)), const SizedBox(height: 10), const Text('My Profile', style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold)), const Text('Verified member'), const SizedBox(height: 10), FilledButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const OnboardingScreen())), child: const Text('Edit Profile'))])),
-    ListTile(leading: const Icon(Icons.favorite), title: const Text('Who Likes Me'), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LikesScreen()))),
-    ListTile(leading: const Icon(Icons.verified_user), title: const Text('Verification'), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const VerificationScreen()))),
-    ListTile(leading: const Icon(Icons.workspace_premium), title: const Text('Premium'), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PremiumScreen()))),
-    ListTile(leading: const Icon(Icons.settings), title: const Text('Settings'), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen()))),
-  ]));
+  @override Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+    return Scaffold(
+      appBar: AppBar(title: const Text('Me')),
+      body: ListView(padding: const EdgeInsets.all(12), children: [
+        Card(child: Padding(padding: const EdgeInsets.all(18), child: Column(children: [
+          CircleAvatar(radius: 55, backgroundImage: user?.photoURL != null ? NetworkImage(user!.photoURL!) : null, child: user?.photoURL == null ? const Icon(Icons.person, size: 50) : null),
+          const SizedBox(height: 10),
+          Text(user?.displayName ?? 'My Profile', style: const TextStyle(fontSize: 23, fontWeight: FontWeight.bold)),
+          Text(user?.email ?? user?.phoneNumber ?? 'Verified member'),
+          const SizedBox(height: 10),
+          FilledButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const OnboardingScreen())), child: const Text('Edit Profile')),
+        ]))),
+        _menu(context, Icons.favorite, 'Who Likes Me', const LikesScreen()),
+        _menu(context, Icons.verified_user, 'Verification', const VerificationScreen()),
+        _menu(context, Icons.workspace_premium, 'Premium', const PremiumScreen()),
+        _menu(context, Icons.settings, 'Settings', const SettingsScreen()),
+      ]),
+    );
+  }
+  Widget _menu(BuildContext context, IconData icon, String title, Widget page) => ListTile(leading: Icon(icon), title: Text(title), trailing: const Icon(Icons.chevron_right), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => page)));
 }
-
 class VerificationScreen extends StatelessWidget {
   const VerificationScreen({super.key});
-  @override Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Verification')), body: ListView(padding: const EdgeInsets.all(12), children: [
-    _card(context, Icons.camera_alt, 'Photo verification'), _card(context, Icons.badge, 'Government ID'), _card(context, Icons.mic, 'Voice verification'),
-  ]));
+  @override Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(title: const Text('Verification')),
+    body: ListView(padding: const EdgeInsets.all(12), children: [
+      _card(context, Icons.camera_alt, 'Photo verification'),
+      _card(context, Icons.badge, 'Government ID'),
+      _card(context, Icons.mic, 'Voice verification'),
+    ]),
+  );
+  Widget _card(BuildContext c, IconData icon, String title) => Card(child: ListTile(leading: Icon(icon), title: Text(title), trailing: TextButton(onPressed: () => _message(c, title, 'Verification flow opened.'), child: const Text('Start'))));
 }
-Widget _card(BuildContext c, IconData icon, String title) => Card(child: ListTile(leading: Icon(icon), title: Text(title), trailing: TextButton(onPressed: () => _message(c, title, 'Verification flow opened.'), child: const Text('Start'))));
-
 class PremiumScreen extends StatelessWidget {
   const PremiumScreen({super.key});
-  @override Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('3TRIO Premium')), body: ListView(padding: const EdgeInsets.all(18), children: [
-    const Text('Go Premium', style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900)),
-    const Text('Unlimited likes · See who liked you · Rewind · Premium filters'),
-    const SizedBox(height: 18),
-    _plan(context, 'Monthly · ₹500'), _plan(context, '6 Months · ₹2,500'), _plan(context, 'Yearly · ₹4,000'),
-  ]));
+  @override Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(title: const Text('3TRIO Premium')),
+    body: ListView(padding: const EdgeInsets.all(18), children: [
+      const Text('Go Premium', style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900)),
+      const Text('Unlimited likes · See who liked you · Rewind · Premium filters'),
+      const SizedBox(height: 18),
+      _plan(context, 'Monthly · ₹500'), _plan(context, '6 Months · ₹2,500'), _plan(context, 'Yearly · ₹4,000'),
+    ]),
+  );
+  Widget _plan(BuildContext c, String title) => Card(child: ListTile(title: Text(title), trailing: FilledButton(onPressed: () => _message(c, 'Premium', 'Purchase flow opened.'), child: const Text('Choose'))));
 }
-Widget _plan(BuildContext c, String text) => Card(child: ListTile(title: Text(text), trailing: FilledButton(onPressed: () => _message(c, 'Premium', 'Purchase flow opened.'), child: const Text('Choose'))));
-
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
   @override State<SettingsScreen> createState() => _SettingsState();
 }
 class _SettingsState extends State<SettingsScreen> {
   bool incognito = true, location = true, notifications = true;
-  @override Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Settings')), body: ListView(children: [
-    const Padding(padding: EdgeInsets.all(16), child: Text('Privacy', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
-    SwitchListTile(title: const Text('Incognito'), subtitle: const Text('Hide your profile from discovery'), value: incognito, onChanged: (v) => setState(() => incognito = v)),
-    SwitchListTile(title: const Text('Map visibility'), value: location, onChanged: (v) => setState(() => location = v)),
-    const Divider(),
-    SwitchListTile(title: const Text('Push notifications'), value: notifications, onChanged: (v) => setState(() => notifications = v)),
-    const Divider(),
-    ListTile(leading: const Icon(Icons.block), title: const Text('Blocked users'), onTap: () => _message(context, 'Blocked users', 'Blocked-user management opened.')),
-    ListTile(leading: const Icon(Icons.shield), title: const Text('Privacy & Safety'), onTap: () => _message(context, 'Privacy & Safety', 'Safety controls opened.')),
-    ListTile(leading: const Icon(Icons.logout), title: const Text('Log out'), onTap: () async { await AuthService().signOut(); if (context.mounted) Navigator.pop(context); }),
-    ListTile(leading: const Icon(Icons.delete_forever, color: Colors.red), title: const Text('Delete account', style: TextStyle(color: Colors.red)), onTap: () => showDialog(context: context, builder: (_) => AlertDialog(title: const Text('Delete account?'), content: const Text('This cannot be undone.'), actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')), FilledButton(onPressed: () => Navigator.pop(context), child: const Text('Delete'))]))),
-  ]));
+  @override Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(title: const Text('Settings')),
+    body: ListView(children: [
+      const Padding(padding: EdgeInsets.all(16), child: Text('Privacy', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
+      SwitchListTile(title: const Text('Incognito'), value: incognito, onChanged: (v) => setState(() => incognito = v)),
+      SwitchListTile(title: const Text('Map visibility'), value: location, onChanged: (v) => setState(() => location = v)),
+      const Divider(),
+      SwitchListTile(title: const Text('Push notifications'), value: notifications, onChanged: (v) => setState(() => notifications = v)),
+      const Divider(),
+      ListTile(leading: const Icon(Icons.block), title: const Text('Blocked users'), onTap: () => _message(context, 'Blocked users', 'Blocked-user management opened.')),
+      ListTile(leading: const Icon(Icons.shield), title: const Text('Privacy & Safety'), onTap: () => _message(context, 'Privacy & Safety', 'Safety controls opened.')),
+      ListTile(leading: const Icon(Icons.logout), title: const Text('Log out'), onTap: () => AuthService().signOut()),
+    ]),
+  );
 }
-
 class FilterSheet extends StatefulWidget {
   const FilterSheet({super.key});
-  @override
-  State<FilterSheet> createState() => _FilterState();
+  @override State<FilterSheet> createState() => _FilterState();
 }
-
 class _FilterState extends State<FilterSheet> {
   double distance = 50;
   RangeValues age = const RangeValues(18, 60);
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(22),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Discovery filters', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
-            Text('Age: ' + age.start.round().toString() + ' – ' + age.end.round().toString()),
-            RangeSlider(
-              values: age,
-              min: 18,
-              max: 80,
-              onChanged: (v) => setState(() => age = v),
-            ),
-            Text('Distance: ' + distance.round().toString() + ' km'),
-            Slider(
-              value: distance,
-              min: 1,
-              max: 100,
-              onChanged: (v) => setState(() => distance = v),
-            ),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Apply filters'),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  @override Widget build(BuildContext context) => SafeArea(child: Padding(
+    padding: const EdgeInsets.all(22), child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+      const Text('Discovery filters', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
+      Text('Age: ' + age.start.round().toString() + ' – ' + age.end.round().toString()),
+      RangeSlider(values: age, min: 18, max: 80, onChanged: (v) => setState(() => age = v)),
+      Text('Distance: ' + distance.round().toString() + ' km'),
+      Slider(value: distance, min: 1, max: 100, onChanged: (v) => setState(() => distance = v)),
+      SizedBox(width: double.infinity, child: FilledButton(onPressed: () => Navigator.pop(context), child: const Text('Apply filters'))),
+    ]),
+  ));
 }
-
 class ProfileDetailScreen extends StatelessWidget {
   final TrioProfile profile;
   const ProfileDetailScreen({super.key, required this.profile});
-  @override Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: Text(profile.name)), body: ListView(children: [
-    Image.network(profile.photo, height: 430, fit: BoxFit.cover),
-    Padding(padding: const EdgeInsets.all(20), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(profile.name + (profile.verified ? ' ✓' : ''), style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
-      Text(profile.age + ' · ' + profile.gender, style: const TextStyle(color: Colors.grey)),
-      const SizedBox(height: 12), Text(profile.bio),
-      const SizedBox(height: 12), Wrap(spacing: 6, children: profile.interests.map((x) => Chip(label: Text(x))).toList()),
-      const SizedBox(height: 18), Row(children: [Expanded(child: OutlinedButton(onPressed: () => Navigator.pop(context), child: const Text('Pass'))), const SizedBox(width: 10), Expanded(child: FilledButton(onPressed: () => _message(context, 'Like', 'Like sent.'), child: const Text('♥ Like')))]),
-    ])),
-  ]));
+  @override Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(title: Text(profile.name)),
+    body: ListView(children: [
+      Image.network(profile.photo, height: 430, fit: BoxFit.cover),
+      Padding(padding: const EdgeInsets.all(20), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(profile.name + (profile.verified ? ' ✓' : ''), style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
+        Text(profile.age + ' · ' + profile.gender, style: const TextStyle(color: Colors.grey)),
+        const SizedBox(height: 12), Text(profile.bio),
+        const SizedBox(height: 12),
+        Wrap(spacing: 6, children: profile.interests.map((x) => Chip(label: Text(x))).toList()),
+        const SizedBox(height: 18),
+        Row(children: [
+          Expanded(child: OutlinedButton(onPressed: () => Navigator.pop(context), child: const Text('Pass'))),
+          const SizedBox(width: 10),
+          Expanded(child: FilledButton(onPressed: () {
+            final uid = FirebaseAuth.instance.currentUser?.uid;
+            if (uid != null) FirestoreService().like(uid, profile.name);
+            _message(context, 'Like', 'Like sent.');
+          }, child: const Text('♥ Like'))),
+        ]),
+      ])),
+    ]),
+  );
 }
-
 void _message(BuildContext context, String title, String message) {
   showModalBottomSheet(context: context, builder: (_) => SafeArea(child: Padding(padding: const EdgeInsets.all(22), child: Column(mainAxisSize: MainAxisSize.min, children: [
     Text(title, style: const TextStyle(fontSize: 23, fontWeight: FontWeight.bold)),
     const SizedBox(height: 10), Text(message, textAlign: TextAlign.center), const SizedBox(height: 18),
     FilledButton(onPressed: () => Navigator.pop(context), child: const Text('Close')),
-  ])));
+  ]))));
 }
