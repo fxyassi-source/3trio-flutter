@@ -6,6 +6,7 @@ import 'services/auth_service.dart';
 import 'services/firestore_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'restored_ux.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
