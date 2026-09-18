@@ -22,6 +22,9 @@ jobs:
       - name: Generate Android project
         run: flutter create --platforms=android --org com.threetrio .
 
+      - name: Align Kotlin Gradle plugin
+        run: sed -i 's/2.1.0/2.4.20/g' android/settings.gradle.kts
+
       - name: Remove generated test
         run: rm -rf test
 
