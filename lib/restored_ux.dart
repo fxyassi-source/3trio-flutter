@@ -225,36 +225,52 @@ class _ProfileGrid extends StatelessWidget{
   ])));
 }
 
-class RestoredMap extends StatefulWidget{const RestoredMap({super.key});@override State<RestoredMap>createState()=>_RestoredMapState();}
+class RestoredMap extends StatefulWidget{
+  const RestoredMap({super.key});
+  @override State<RestoredMap> createState()=>_RestoredMapState();
+}
 class _RestoredMapState extends State<RestoredMap>{
   LatLng center=const LatLng(28.4089,77.3178);
-  @override void initState(){super.initState();_locate();}
+  @override void initState(){super.initState(); _locate();}
   Future<void> _locate() async {
-    try{
+    try {
       if(!await Geolocator.isLocationServiceEnabled()) return;
-      var p=await Geolocator.checkPermission();
-      if(p==LocationPermission.denied) p=await Geolocator.requestPermission();
-      if(p==LocationPermission.always||p==LocationPermission.whileInUse){
-        final x=await Geolocator.getCurrentPosition();
-        center=LatLng(x.latitude,x.longitude);
-        if(mounted)setState((){});
+      var permission=await Geolocator.checkPermission();
+      if(permission==LocationPermission.denied) permission=await Geolocator.requestPermission();
+      if(permission==LocationPermission.always || permission==LocationPermission.whileInUse){
+        final position=await Geolocator.getCurrentPosition();
+        if(mounted) setState(()=>center=LatLng(position.latitude,position.longitude));
       }
-    }catch(_){}
+    } catch (_) {}
   }
   @override Widget build(BuildContext c){
-    final offsets=[const LatLng(.006,.004),const LatLng(-.004,.007),const LatLng(.008,-.006),const LatLng(-.007,-.004)];
+    final offsets=<LatLng>[
+      const LatLng(.006,.004),const LatLng(-.004,.007),
+      const LatLng(.008,-.006),const LatLng(-.007,-.004)
+    ];
+    final markers=List<Marker>.generate(restoredProfiles.length,(i){
+      final p=restoredProfiles[i];
+      return Marker(
+        point:LatLng(center.latitude+offsets[i].latitude,center.longitude+offsets[i].longitude),
+        width:110,height:92,
+        child:GestureDetector(
+          onTap:()=>showModalBottomSheet(context:c,builder:(_)=>_MapProfileCard(profile:p)),
+          child:Column(mainAxisSize:MainAxisSize.min,children:[
+            CircleAvatar(radius:27,backgroundImage:NetworkImage(p.photo)),
+            Container(
+              color:Colors.white,
+              padding:const EdgeInsets.symmetric(horizontal:4,vertical:2),
+              child:Text('${p.name} · ${10+i*7} km',style:const TextStyle(fontSize:9,fontWeight:FontWeight.bold)),
+            ),
+          ]),
+        ),
+      );
+    });
     return FlutterMap(
       options:MapOptions(initialCenter:center,initialZoom:11.8),
       children:[
         TileLayer(urlTemplate:'https://tile.openstreetmap.org/{z}/{x}/{y}.png',userAgentPackageName:'com.aistudio.threetrio.jxhk'),
-        MarkerLayer(markers:List.generate(restoredProfiles.length,(i)=>Marker(
-          point:LatLng(center.latitude+offsets[i].latitude,center.longitude+offsets[i].longitude),
-          width:110,height:90,
-          child:GestureDetector(onTap:()=>showModalBottomSheet(context:c,builder:(_)=>_MapProfileCard(profile:restoredProfiles[i]),child:Column(children:[
-            CircleAvatar(radius:27,backgroundImage:NetworkImage(restoredProfiles[i].photo)),
-            Container(color:Colors.white,padding:const EdgeInsets.symmetric(horizontal:4,vertical:2),child:Text('${restoredProfiles[i].name} · ${10+i*7} km',style:const TextStyle(fontSize:9,fontWeight:FontWeight.bold))),
-          ])),
-        ))),
+        MarkerLayer(markers:markers),
       ],
     );
   }
@@ -311,7 +327,7 @@ class _SwipeCard extends StatelessWidget{
 class _ActionButton extends StatelessWidget{
   final IconData icon; final Color color; final VoidCallback onTap;
   const _ActionButton({required this.icon,required this.color,required this.onTap});
-  @override Widget build(BuildContext c)=>Padding(padding:const EdgeInsets.symmetric(horizontal:5),child(InkWell(onTap:onTap,child:Container(width:58,height:58,decoration:BoxDecoration(shape:BoxShape.circle,border:Border.all(color:Colors.grey),color:Theme.of(c).cardColor),child:Icon(icon,color:color)))));
+  @override Widget build(BuildContext c)=>Padding(padding:const EdgeInsets.symmetric(horizontal:5),child: InkWell(onTap:onTap,child:Container(width:58,height:58,decoration:BoxDecoration(shape:BoxShape.circle,border:Border.all(color:Colors.grey),color:Theme.of(c).cardColor),child:Icon(icon,color:color)))));
 }
 
 class RestoredMessages extends StatelessWidget{
