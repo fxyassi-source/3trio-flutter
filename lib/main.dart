@@ -536,18 +536,88 @@ class MessagesScreen extends StatelessWidget {
 }
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
-  @override State<ChatScreen> createState() => _ChatState();
+  @override
+  State<ChatScreen> createState() => _ChatState();
 }
+
 class _ChatState extends State<ChatScreen> {
   final controller = TextEditingController();
   final messages = <String>['Hey 👋', 'Hi, nice to meet you.'];
-  @override Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Protected Chat'), actions: [
-    IconButton(onPressed: () => _message(context, 'Audio call', 'Audio call integration point.'), icon: const Icon(Icons.call_outlined)),
-    IconButton(onPressed: () => _message(context, 'Video call', 'Video call integration point.'), icon: const Icon(Icons.videocam_outlined)),
-  ]), body: Column(children: [
-    Expanded(child: ListView.builder(padding: const EdgeInsets.all(16), itemCount: messages.length, itemBuilder: (_, i) => Align(alignment: i.isOdd ? Alignment.centerRight : Alignment.centerLeft, child: Container(margin: const EdgeInsets.only(bottom: 8), padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: i.isOdd ? const Color(0xFFFF3B5C) : Colors.grey.shade200, borderRadius: BorderRadius.circular(17)), child: Text(messages[i], style: TextStyle(color: i.isOdd ? Colors.white : Colors.black)))))),
-    SafeArea(child: Row(children: [Expanded(child: TextField(controller: controller, decoration: const InputDecoration(hintText: 'Message…'))), IconButton(onPressed: () { if (controller.text.trim().isEmpty) return; setState(() { messages.add(controller.text.trim()); controller.clear(); }); }, icon: const Icon(Icons.send))])),
-  ]));
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Protected Chat'),
+        actions: [
+          IconButton(
+            onPressed: () => _message(context, 'Audio call', 'Audio call integration point.'),
+            icon: const Icon(Icons.call_outlined),
+          ),
+          IconButton(
+            onPressed: () => _message(context, 'Video call', 'Video call integration point.'),
+            icon: const Icon(Icons.videocam_outlined),
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: messages.length,
+              itemBuilder: (context, i) {
+                return Align(
+                  alignment: i.isOdd ? Alignment.centerRight : Alignment.centerLeft,
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: i.isOdd ? const Color(0xFFFF3B5C) : Colors.grey.shade200,
+                      borderRadius: BorderRadius.circular(17),
+                    ),
+                    child: Text(
+                      messages[i],
+                      style: TextStyle(color: i.isOdd ? Colors.white : Colors.black),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          SafeArea(
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: controller,
+                    decoration: const InputDecoration(hintText: 'Message…'),
+                  ),
+                ),
+                IconButton(
+                  onPressed: () {
+                    final value = controller.text.trim();
+                    if (value.isEmpty) return;
+                    setState(() {
+                      messages.add(value);
+                      controller.clear();
+                    });
+                  },
+                  icon: const Icon(Icons.send),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class MeScreen extends StatelessWidget {
@@ -602,19 +672,50 @@ class _SettingsState extends State<SettingsScreen> {
 
 class FilterSheet extends StatefulWidget {
   const FilterSheet({super.key});
-  @override State<FilterSheet> createState() => _FilterState();
+  @override
+  State<FilterSheet> createState() => _FilterState();
 }
+
 class _FilterState extends State<FilterSheet> {
   double distance = 50;
   RangeValues age = const RangeValues(18, 60);
-  @override Widget build(BuildContext context) => SafeArea(child: Padding(padding: const EdgeInsets.all(22), child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-    const Text('Discovery filters', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
-    Text('Age: ' + age.start.round().toString() + ' – ' + age.end.round().toString()),
-    RangeSlider(values: age, min: 18, max: 80, onChanged: (v) => setState(() => age = v)),
-    Text('Distance: ' + distance.round().toString() + ' km'),
-    Slider(value: distance, min: 1, max: 100, onChanged: (v) => setState(() => distance = v)),
-    SizedBox(width: double.infinity, child: FilledButton(onPressed: () => Navigator.pop(context), child: const Text('Apply filters'))),
-  ])));
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(22),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Discovery filters', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
+            Text('Age: ' + age.start.round().toString() + ' – ' + age.end.round().toString()),
+            RangeSlider(
+              values: age,
+              min: 18,
+              max: 80,
+              onChanged: (v) => setState(() => age = v),
+            ),
+            Text('Distance: ' + distance.round().toString() + ' km'),
+            Slider(
+              value: distance,
+              min: 1,
+              max: 100,
+              onChanged: (v) => setState(() => distance = v),
+            ),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Apply filters'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class ProfileDetailScreen extends StatelessWidget {
