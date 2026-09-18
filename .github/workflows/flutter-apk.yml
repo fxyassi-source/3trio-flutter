@@ -47,3 +47,4 @@ jobs:
           path: build/app/outputs/flutter-apk/app-release.apk
 
 # rebuild
+# final release trigger
