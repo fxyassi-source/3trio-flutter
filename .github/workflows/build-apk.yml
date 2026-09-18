@@ -21,9 +21,31 @@ jobs:
         run: flutter create --platforms=android --org com.threetrio .
       - name: Align Kotlin Gradle plugin
         run: sed -i 's/2.1.0/2.4.20/g' android/settings.gradle.kts
-      - name: Align Android Java target with Kotlin
+      - name: Fix Android JVM targets
         run: |
-          sed -i 's/JavaVersion.VERSION_11/JavaVersion.VERSION_17/g' android/app/build.gradle.kts
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('android/app/build.gradle.kts')
+          lines = p.read_text().splitlines()
+          out = []
+          skip = False
+          depth = 0
+          for line in lines:
+              if not skip and 'kotlinOptions {' in line:
+                  skip = True
+                  depth = line.count('{') - line.count('}')
+                  continue
+              if skip:
+                  depth += line.count('{') - line.count('}')
+                  if depth <= 0:
+                      skip = False
+                  continue
+              out.append(line)
+          s = '\n'.join(out) + '\n'
+          s = s.replace('JavaVersion.VERSION_11', 'JavaVersion.VERSION_17')
+          p.write_text(s)
+          PY
+          grep -n -E 'kotlinOptions|jvmTarget|sourceCompatibility|targetCompatibility' android/app/build.gradle.kts || true
       - name: Remove generated test
         run: rm -rf test
       - name: Get dependencies
