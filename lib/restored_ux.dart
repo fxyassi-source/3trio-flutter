@@ -155,7 +155,7 @@ class _RestoredHomeState extends State<RestoredHome>{
         NavigationDestination(icon:Icon(Icons.dynamic_feed_outlined),selectedIcon:Icon(Icons.dynamic_feed),label:'Feed'),
         NavigationDestination(icon:Icon(Icons.chat_bubble_outline),selectedIcon:Icon(Icons.chat_bubble),label:'Chat'),
         NavigationDestination(icon:Icon(Icons.person_outline),selectedIcon:Icon(Icons.person),label:'Me'),
-      ],
+      ]),
     );
   }
 }
@@ -351,7 +351,7 @@ class _RestoredChatState extends State<RestoredChat>{
     IconButton(onPressed:()=>_showMessage(c,'Video call','Video call opened.'),icon:const Icon(Icons.videocam)),
   ]),body:Column(children:[
     Expanded(child:ListView.builder(itemCount:msgs.length,itemBuilder:(_,i)=>Align(alignment:i.isOdd?Alignment.centerRight:Alignment.centerLeft,child:Container(margin:const EdgeInsets.all(7),padding:const EdgeInsets.all(12),decoration:BoxDecoration(color:i.isOdd?restoredPrimary:Colors.grey.shade200,borderRadius:BorderRadius.circular(17)),child:Text(msgs[i],style:TextStyle(color:i.isOdd?Colors.white:Colors.black)))))),
-    SafeArea(child:Row(children:[Expanded(child:TextField(controller:ctl,decoration:const InputDecoration(hintText:'Message…'))),IconButton(onPressed:(){if(ctl.text.trim().isNotEmpty)setState(()=>{msgs.add(ctl.text.trim()),ctl.clear()});},icon:const Icon(Icons.send))])),
+    SafeArea(child:Row(children:[Expanded(child:TextField(controller:ctl,decoration:const InputDecoration(hintText:'Message…'))),IconButton(onPressed:(){if(ctl.text.trim().isNotEmpty){setState((){msgs.add(ctl.text.trim());ctl.clear();});}},icon:const Icon(Icons.send))])),
   ]));
 }
 
@@ -383,7 +383,7 @@ class _RestoredProfileState extends State<RestoredProfile>{
     ]));
   }
 }
-Widget _infoRow(String a,String b)=>Padding(padding:const EdgeInsets.symmetric(vertical:6),child:Row(children:[Expanded(child:Text(a,color:Colors.grey)),Expanded(child:Text(b,style:const TextStyle(fontWeight:FontWeight.bold)))]));
+Widget _infoRow(String a,String b)=>Padding(padding:const EdgeInsets.symmetric(vertical:6),child:Row(children:[Expanded(child:Text(a,style:const TextStyle(color:Colors.grey))),Expanded(child:Text(b,style:const TextStyle(fontWeight:FontWeight.bold)))]));
 class _InfoCard extends StatelessWidget{final String title;final Widget child;const _InfoCard({required this.title,required this.child});@override Widget build(BuildContext c)=>Card(child:Padding(padding:const EdgeInsets.all(16),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text(title,style:const TextStyle(fontSize:19,fontWeight:FontWeight.w900)),const SizedBox(height:10),child])));}
 
 class RestoredFeed extends StatelessWidget{
