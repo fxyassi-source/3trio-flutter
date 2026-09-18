@@ -1,135 +1,74 @@
 import 'package:flutter/material.dart';
-import 'theme.dart';
+import 'package:image_picker/image_picker.dart';
 
-void main() => runApp(const ThreeTrioApp());
+void main() => runApp(const TrioApp());
 
-class ThreeTrioApp extends StatelessWidget {
-  const ThreeTrioApp({super.key});
+class TrioApp extends StatelessWidget {
+  const TrioApp({super.key});
   @override
   Widget build(BuildContext context) => MaterialApp(
-        title: '3TRIO',
-        debugShowCheckedModeBanner: false,
-        theme: buildThreeTrioTheme(),
-        home: const AgeGateScreen(),
-      );
+    debugShowCheckedModeBanner: false,
+    title: '3TRIO',
+    theme: ThemeData(useMaterial3: true, brightness: Brightness.light, colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFE11D48)), scaffoldBackgroundColor: const Color(0xFFF8F8FA)),
+    home: const Splash(),
+  );
 }
 
-class AgeGateScreen extends StatelessWidget {
-  const AgeGateScreen({super.key});
-  @override
-  Widget build(BuildContext context) => Scaffold(
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(28),
-            child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              const Text('3TRIO', style: TextStyle(fontSize: 42, fontWeight: FontWeight.w800, letterSpacing: 3)),
-              const SizedBox(height: 12),
-              const Text('Meet openly. Connect intentionally.', textAlign: TextAlign.center, style: TextStyle(fontSize: 17)),
-              const SizedBox(height: 30),
-              const Text('Adults only · 18+', style: TextStyle(fontWeight: FontWeight.w600)),
-              const SizedBox(height: 24),
-              SizedBox(width: double.infinity, child: FilledButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginScreen())), child: const Text('I am 18 or older'))),
-            ]),
-          ),
-        ),
-      );
+class Splash extends StatefulWidget { const Splash({super.key}); @override State<Splash> createState()=>_SplashState(); }
+class _SplashState extends State<Splash>{
+  @override void initState(){super.initState(); Future.delayed(const Duration(milliseconds:900),(){if(mounted)Navigator.pushReplacement(context,MaterialPageRoute(builder:(_)=>const AgeGate()));});}
+  @override Widget build(BuildContext c)=>const Scaffold(body:Center(child:Column(mainAxisSize:MainAxisSize.min,children:[Text('3TRIO',style:TextStyle(fontSize:48,fontWeight:FontWeight.w900,letterSpacing:4)),SizedBox(height:8),Text('Meet openly. Connect intentionally.')])));
 }
 
-class LoginScreen extends StatelessWidget {
-  const LoginScreen({super.key});
-  @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Welcome to 3TRIO')),
-        body: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-            _Action(label: 'Continue with Google', icon: Icons.g_mobiledata, onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeShell()))),
-            _Action(label: 'Continue with Apple', icon: Icons.apple, onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeShell()))),
-            _Action(label: 'Continue with phone', icon: Icons.phone, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PhoneLoginScreen()))),
-            const SizedBox(height: 16),
-            const Text('Verification is required for every member.', textAlign: TextAlign.center),
-          ]),
-        ),
-      );
-}
+class AgeGate extends StatelessWidget { const AgeGate({super.key}); @override Widget build(BuildContext c)=>Scaffold(body:SafeArea(child:Padding(padding:const EdgeInsets.all(28),child:Column(mainAxisAlignment:MainAxisAlignment.center,children:[const Text('3TRIO',style:TextStyle(fontSize:44,fontWeight:FontWeight.w900)),const SizedBox(height:16),const Text('A private social discovery space for adults.',textAlign:TextAlign.center,style:TextStyle(fontSize:18)),const SizedBox(height:18),const Chip(label:Text('18+ adults only')),const SizedBox(height:28),FilledButton(onPressed:()=>Navigator.push(c,MaterialPageRoute(builder:(_)=>const Login())),child:const Text('I am 18 or older'))])))); }
 
-class PhoneLoginScreen extends StatelessWidget {
-  const PhoneLoginScreen({super.key});
-  @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Phone verification')),
-        body: Padding(padding: const EdgeInsets.all(24), child: Column(children: [
-          const TextField(keyboardType: TextInputType.phone, decoration: InputDecoration(labelText: 'Phone number', prefixText: '+ ')),
-          const SizedBox(height: 16),
-          SizedBox(width: double.infinity, child: FilledButton(onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeShell())), child: const Text('Send OTP'))),
-        ])),
-      );
-}
-
-class HomeShell extends StatefulWidget {
-  const HomeShell({super.key});
-  @override State<HomeShell> createState() => _HomeShellState();
-}
-class _HomeShellState extends State<HomeShell> {
-  int index = 0;
-  final pages = const [DiscoverScreen(), FeedScreen(), MapScreen(), LikesScreen(), MessagesScreen()];
-  @override
-  Widget build(BuildContext context) => Scaffold(
-        body: pages[index],
-        bottomNavigationBar: NavigationBar(selectedIndex: index, onDestinationSelected: (v) => setState(() => index = v), destinations: const [
-          NavigationDestination(icon: Icon(Icons.explore_outlined), selectedIcon: Icon(Icons.explore), label: 'Discover'),
-          NavigationDestination(icon: Icon(Icons.dynamic_feed_outlined), selectedIcon: Icon(Icons.dynamic_feed), label: 'Feed'),
-          NavigationDestination(icon: Icon(Icons.map_outlined), selectedIcon: Icon(Icons.map), label: 'Map'),
-          NavigationDestination(icon: Icon(Icons.favorite_border), selectedIcon: Icon(Icons.favorite), label: 'Likes'),
-          NavigationDestination(icon: Icon(Icons.chat_bubble_outline), selectedIcon: Icon(Icons.chat_bubble), label: 'Messages'),
-        ]),
-      );
-}
-
-class DiscoverScreen extends StatelessWidget {
-  const DiscoverScreen({super.key});
-  @override
-  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Discover'), actions: [IconButton(icon: const Icon(Icons.tune), onPressed: () => _open(context, 'Filters'))]), body: ListView(padding: const EdgeInsets.all(16), children: [
-    const _ProfileCard(name: 'Alex & Sam', age: '29 · 31', desire: 'Open to explore', image: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=900'),
-    const _ProfileCard(name: 'Maya', age: '28', desire: 'Connections', image: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=900'),
+class Login extends StatelessWidget {
+  const Login({super.key});
+  @override Widget build(BuildContext c)=>Scaffold(appBar:AppBar(title:const Text('Welcome to 3TRIO')),body:Padding(padding:const EdgeInsets.all(24),child:Column(mainAxisAlignment:MainAxisAlignment.center,children:[
+    _login(c,'Continue with Google',Icons.g_mobiledata),_login(c,'Continue with Apple',Icons.apple),_login(c,'Continue with phone',Icons.phone,phone:true),
+    const SizedBox(height:16),const Text('Verification is required for every member.',textAlign:TextAlign.center,style:TextStyle(color:Colors.grey))
   ]));
 }
+Widget _login(BuildContext c,String t,IconData i,{bool phone=false})=>Padding(padding:const EdgeInsets.only(bottom:12),child:SizedBox(width:double.infinity,height:54,child:OutlinedButton.icon(onPressed:()=>Navigator.push(c,MaterialPageRoute(builder:(_)=>phone?const PhoneLogin():const Onboarding())),icon:Icon(i),label:Text(t))));
 
-class FeedScreen extends StatelessWidget {
-  const FeedScreen({super.key});
-  @override
-  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Feed'), actions: [IconButton(icon: const Icon(Icons.add), onPressed: () => _open(context, 'Create Post'))]), body: ListView(padding: const EdgeInsets.all(16), children: const [
-    _Post(name: '3TRIO Community', text: 'Weekend social. Meet new people, keep it respectful and consensual.', image: 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=900'),
-    _Post(name: 'Jordan', text: 'Looking for genuine connections and good conversation.', image: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=900'),
-  ]));
+class PhoneLogin extends StatelessWidget { const PhoneLogin({super.key}); @override Widget build(BuildContext c)=>Scaffold(appBar:AppBar(title:const Text('Phone verification')),body:Padding(padding:const EdgeInsets.all(24),child:Column(children:[const TextField(keyboardType:TextInputType.phone,decoration:InputDecoration(labelText:'Phone number',border:OutlineInputBorder())),const SizedBox(height:16),SizedBox(width:double.infinity,child:FilledButton(onPressed:()=>Navigator.push(c,MaterialPageRoute(builder:(_)=>const Onboarding())),child:const Text('Send OTP')))]));}
+
+class Onboarding extends StatefulWidget { const Onboarding({super.key}); @override State<Onboarding> createState()=>_OnboardingState(); }
+class _OnboardingState extends State<Onboarding>{
+ int step=0;String name='',age='',gender='';Set<String> interests={};int photos=0;bool verified=false;
+ final all=['Open Relationship','Ethical Non-Monogamy','Polyamory','Swinging','Roleplay','BDSM','Casual Fun','Threesomes','Group Play','Kink Exploration','Travel','Music','Fitness'];
+ bool get can=>step==0?name.isNotEmpty&&age.isNotEmpty:step==1?gender.isNotEmpty:step==2?interests.isNotEmpty:step==3?photos>=2:verified;
+ void next(){if(!can)return;if(step<4)setState(()=>step++);else Navigator.pushReplacement(context,MaterialPageRoute(builder:(_)=>const Home()));}
+ @override Widget build(BuildContext c)=>Scaffold(appBar:AppBar(leading:step>0?IconButton(onPressed:()=>setState(()=>step--),icon:const Icon(Icons.arrow_back)):null,title:Text('Set up your profile · ${step+1}/5')),body:Padding(padding:const EdgeInsets.all(24),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[LinearProgressIndicator(value:(step+1)/5),const SizedBox(height:28),Expanded(child:SingleChildScrollView(child:_body())),SizedBox(width:double.infinity,height:54,child:FilledButton(onPressed:can?next:null,child:Text(step==4?'Create profile':'Next')))])));
+ Widget _body(){
+  if(step==0)return Column(crossAxisAlignment:CrossAxisAlignment.start,children:[const Text("What's your name?",style:TextStyle(fontSize:28,fontWeight:FontWeight.bold)),const SizedBox(height:18),TextField(onChanged:(v)=>name=v,decoration:const InputDecoration(labelText:'First name',border:OutlineInputBorder())),const SizedBox(height:28),const Text('How old are you?',style:TextStyle(fontSize:28,fontWeight:FontWeight.bold)),const SizedBox(height:18),TextField(onChanged:(v)=>age=v,keyboardType:TextInputType.number,decoration:const InputDecoration(labelText:'Age',border:OutlineInputBorder()))]);
+  if(step==1)return Column(crossAxisAlignment:CrossAxisAlignment.start,children:[const Text('I am a...',style:TextStyle(fontSize:28,fontWeight:FontWeight.bold)),const SizedBox(height:18),...['Man','Woman','Non-binary','Couple'].map((x)=>Padding(padding:const EdgeInsets.only(bottom:10),child:OutlinedButton(onPressed:()=>setState(()=>gender=x),style:OutlinedButton.styleFrom(minimumSize:const Size.fromHeight(52),side:BorderSide(width:gender==x?2:1,color:gender==x?Theme.of(context).colorScheme.primary:Colors.grey)),child:Text(x))))]);
+  if(step==2)return Column(crossAxisAlignment:CrossAxisAlignment.start,children:[const Text('What are you looking for?',style:TextStyle(fontSize:28,fontWeight:FontWeight.bold)),const Text('Pick up to 5',style:TextStyle(color:Colors.grey)),const SizedBox(height:18),Wrap(spacing:8,runSpacing:8,children:all.toSet().map((x)=>FilterChip(label:Text(x),selected:interests.contains(x),onSelected:(v){if(v&&interests.length<5)setState(()=>interests.add(x));else if(!v)setState(()=>interests.remove(x));})).toList())]);
+  if(step==3)return Column(crossAxisAlignment:CrossAxisAlignment.start,children:[const Text('Add your photos',style:TextStyle(fontSize:28,fontWeight:FontWeight.bold)),const SizedBox(height:8),const Text('At least 2 photos, maximum 5.'),const SizedBox(height:20),Wrap(spacing:12,runSpacing:12,children:List.generate(5,(i)=>Container(width:95,height:125,decoration:BoxDecoration(color:Colors.grey.shade200,borderRadius:BorderRadius.circular(16)),child:Icon(i<photos?Icons.check_circle:Icons.add_a_photo,size:32)))),const SizedBox(height:20),OutlinedButton.icon(onPressed:()async{final p=await ImagePicker().pickImage(source:ImageSource.gallery);if(p!=null&&photos<5)setState(()=>photos++);},icon:const Icon(Icons.photo_library),label:const Text('Choose photos'))]);
+  return Column(crossAxisAlignment:CrossAxisAlignment.start,children:[const Text('Verification',style:TextStyle(fontSize:28,fontWeight:FontWeight.bold)),const SizedBox(height:12),const Text('Complete verification before your profile becomes discoverable.'),const SizedBox(height:18),...['Photo verification','Government ID','Voice verification'].map((x)=>Card(child:ListTile(leading:const Icon(Icons.verified_user),title:Text(x),subtitle:const Text('Private verification flow'),trailing:verified?const Icon(Icons.check_circle):TextButton(onPressed:()=>setState(()=>verified=true),child:const Text('Start'))))) ]);
+ }
 }
 
-class MapScreen extends StatefulWidget { const MapScreen({super.key}); @override State<MapScreen> createState()=>_MapScreenState(); }
-class _MapScreenState extends State<MapScreen> {
-  int mode=0;
-  @override Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Map'), actions: [IconButton(icon: const Icon(Icons.add_location_alt_outlined), onPressed: ()=>_open(context,'Create Activity'))]), body: Column(children: [
-    Padding(padding: const EdgeInsets.all(12), child: SegmentedButton<int>(segments: const [ButtonSegment(value:0,label:Text('People')),ButtonSegment(value:1,label:Text('Activities')),ButtonSegment(value:2,label:Text('Both'))], selected: {mode}, onSelectionChanged:(s)=>setState(()=>mode=s.first))),
-    Expanded(child: Container(margin: const EdgeInsets.all(12), decoration: BoxDecoration(borderRadius: BorderRadius.circular(28), color: Theme.of(context).colorScheme.surfaceContainerHighest), child: Stack(children: [
-      const Center(child: Icon(Icons.map, size: 100)),
-      Positioned(left: 18,right: 18,bottom: 18,child: Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(20)), child: const Text('Approximate locations only. Exact GPS, home and live movement are never exposed.', textAlign: TextAlign.center))),
-    ]))),
-  ]));
-}
+class Home extends StatefulWidget { const Home({super.key}); @override State<Home> createState()=>_HomeState(); }
+class _HomeState extends State<Home>{int tab=0;final pages=const [Discover(),Feed(),MapPage(),Likes(),Messages()];@override Widget build(BuildContext c)=>Scaffold(body:pages[tab],bottomNavigationBar:NavigationBar(selectedIndex:tab,onDestinationSelected:(i)=>setState(()=>tab=i),destinations:const[NavigationDestination(icon:Icon(Icons.explore_outlined),selectedIcon:Icon(Icons.explore),label:'Discover'),NavigationDestination(icon:Icon(Icons.dynamic_feed_outlined),selectedIcon:Icon(Icons.dynamic_feed),label:'Feed'),NavigationDestination(icon:Icon(Icons.map_outlined),selectedIcon:Icon(Icons.map),label:'Map'),NavigationDestination(icon:Icon(Icons.favorite_border),selectedIcon:Icon(Icons.favorite),label:'Likes'),NavigationDestination(icon:Icon(Icons.chat_bubble_outline),selectedIcon:Icon(Icons.chat_bubble),label:'Messages')]));}
 
-class LikesScreen extends StatelessWidget { const LikesScreen({super.key}); @override Widget build(BuildContext context)=>Scaffold(appBar:AppBar(title:const Text('Likes & Pings')),body:ListView(padding:const EdgeInsets.all(16),children:const [_ListTile(title:'Someone nearby liked you ❤️',sub:'Open Likes to see who connected with you.'),_ListTile(title:'Sam sent a Ping',sub:'You can respond from this screen.')]); }
-class MessagesScreen extends StatelessWidget { const MessagesScreen({super.key}); @override Widget build(BuildContext context)=>Scaffold(appBar:AppBar(title:const Text('Messages')),body:ListView(children:[ListTile(leading:const CircleAvatar(child:Icon(Icons.person)),title:const Text('Alex & Sam'),subtitle:const Text('Protected chat'),onTap:()=>Navigator.push(context,MaterialPageRoute(builder:(_)=>const ChatScreen()))),const ListTile(leading:CircleAvatar(child:Icon(Icons.groups)),title:Text('Activity chat'),subtitle:Text('Rooftop Social · 5 going'))]); }
+final profiles=[['Alex & Sam','29 · 31','Open to explore','https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=900'],['Maya','28','Connections','https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=900'],['Jordan','30','Good conversation','https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=900'],['Taylor','27','Travel & music','https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=900']];
+class Discover extends StatelessWidget { const Discover({super.key}); @override Widget build(BuildContext c)=>Scaffold(appBar:AppBar(title:const Text('Discover'),actions:[IconButton(onPressed:()=>showModalBottomSheet(context:c,builder:(_)=>const Filters()),icon:const Icon(Icons.tune))]),body:GridView.builder(padding:const EdgeInsets.all(12),gridDelegate:const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount:2,crossAxisSpacing:12,mainAxisSpacing:12,childAspectRatio:.66),itemCount:profiles.length,itemBuilder:(_,i)=>GestureDetector(onTap:()=>Navigator.push(c,MaterialPageRoute(builder:(_)=>Profile(name:profiles[i][0],image:profiles[i][3]))),child:ClipRRect(borderRadius:BorderRadius.circular(18),child:Stack(fit:StackFit.expand,children:[Image.network(profiles[i][3],fit:BoxFit.cover,errorBuilder:(_,__,___)=>Container(color:Colors.grey,child:const Icon(Icons.person,size:60))),Align(alignment:Alignment.bottomCenter,child:Container(width:double.infinity,padding:const EdgeInsets.all(12),decoration:const BoxDecoration(gradient:LinearGradient(begin:Alignment.topCenter,end:Alignment.bottomCenter,colors:[Colors.transparent,Colors.black87])),child:Column(mainAxisSize:MainAxisSize.min,crossAxisAlignment:CrossAxisAlignment.start,children:[Text(profiles[i][0],style:const TextStyle(color:Colors.white,fontWeight:FontWeight.bold,fontSize:17)),Text(profiles[i][1],style:const TextStyle(color:Colors.white70)),Text('✦ ${profiles[i][2]}',style:const TextStyle(color:Colors.amber,fontSize:12))]))]))));}
+class Filters extends StatelessWidget{const Filters({super.key});@override Widget build(BuildContext c)=>Padding(padding:const EdgeInsets.all(24),child:Column(mainAxisSize:MainAxisSize.min,crossAxisAlignment:CrossAxisAlignment.start,children:[const Text('Filters',style:TextStyle(fontSize:26,fontWeight:FontWeight.bold)),const ListTile(title:Text('Age'),subtitle:Text('18 – 60')),const ListTile(title:Text('Distance'),subtitle:Text('Up to 50 km')),const ListTile(title:Text('Interests'),subtitle:Text('Any')),FilledButton(onPressed:()=>Navigator.pop(c),child:const Text('Apply'))]));}
 
-class ChatScreen extends StatelessWidget { const ChatScreen({super.key}); @override Widget build(BuildContext context)=>Scaffold(appBar:AppBar(title:const Text('Protected Chat'),actions:[IconButton(icon:const Icon(Icons.call_outlined),onPressed:()=>_open(context,'Audio Call')),IconButton(icon:const Icon(Icons.videocam_outlined),onPressed:()=>_open(context,'Video Call'))]),body:Column(children:[const Expanded(child:ListView(padding:EdgeInsets.all(16),children:[_Bubble(text:'Hey 👋',mine:false),_Bubble(text:'Hi, nice to meet you.',mine:true),_Bubble(text:'Protected chat · One-view media supported',mine:false)])),SafeArea(child:Row(children:[IconButton(icon:const Icon(Icons.photo_outlined),onPressed:()=>_open(context,'Media')),const Expanded(child:TextField(decoration:InputDecoration(hintText:'Message…'))),IconButton(icon:const Icon(Icons.send),onPressed:()=>_open(context,'Message sent'))]))])); }
+class Profile extends StatelessWidget{final String name,image;const Profile({super.key,required this.name,required this.image});@override Widget build(BuildContext c)=>Scaffold(appBar:AppBar(title:Text(name)),body:ListView(children:[Image.network(image,height:420,fit:BoxFit.cover),Padding(padding:const EdgeInsets.all(20),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text('$name  ·  Verified',style:const TextStyle(fontSize:26,fontWeight:FontWeight.bold)),const SizedBox(height:8),const Text('Open-minded, respectful and here for genuine connections.'),const SizedBox(height:16),const Wrap(spacing:8,children:[Chip(label:Text('Photo verified')),Chip(label:Text('Music')),Chip(label:Text('Travel')),Chip(label:Text('Fitness'))]),const SizedBox(height:20),Row(children:[Expanded(child:OutlinedButton(onPressed:()=>Navigator.pop(c),child:const Text('Pass'))),const SizedBox(width:12),Expanded(child:FilledButton(onPressed:()=>ScaffoldMessenger.of(c).showSnackBar(const SnackBar(content:Text('Like sent'))),child:const Text('Like')))])]))]));}
 
-class VerificationScreen extends StatelessWidget { const VerificationScreen({super.key}); @override Widget build(BuildContext context)=>Scaffold(appBar:AppBar(title:const Text('Verification')),body:ListView(padding:const EdgeInsets.all(20),children:const [_Verify(title:'Photo verification',icon:Icons.face_retouching_natural),_Verify(title:'Government ID',icon:Icons.badge_outlined),_Verify(title:'Voice verification',icon:Icons.mic_none)]); }
-class PremiumScreen extends StatelessWidget { const PremiumScreen({super.key}); @override Widget build(BuildContext context)=>Scaffold(appBar:AppBar(title:const Text('3TRIO Premium')),body:ListView(padding:const EdgeInsets.all(20),children:const [Text('Unlimited likes',style:TextStyle(fontSize:24,fontWeight:FontWeight.bold)),SizedBox(height:8),Text('See who liked you'),SizedBox(height:24),_Plan('Monthly','₹500'),_Plan('6 months','₹2,500'),_Plan('Yearly','₹4,000')]); }
-class SettingsScreen extends StatelessWidget { const SettingsScreen({super.key}); @override Widget build(BuildContext context)=>Scaffold(appBar:AppBar(title:const Text('Settings')),body:ListView(children:const [SwitchListTile(value:true,onChanged:null,title:Text('Incognito')),SwitchListTile(value:true,onChanged:null,title:Text('Map visibility')),SwitchListTile(value:true,onChanged:null,title:Text('Nearby interaction notifications')),ListTile(title:Text('Distance'),subtitle:Text('Kilometres / Miles')),ListTile(title:Text('Privacy & Safety')),ListTile(title:Text('Blocked users'))])); }
+class Feed extends StatelessWidget{const Feed({super.key});@override Widget build(BuildContext c)=>Scaffold(appBar:AppBar(title:const Text('Feed'),actions:[IconButton(onPressed:()=>_sheet(c,'Create post'),icon:const Icon(Icons.add))]),body:ListView(padding:const EdgeInsets.all(12),children:[_post(c,'3TRIO Community','Weekend social. Meet new people, keep it respectful and consensual.','https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=900'),_post(c,'Jordan','Looking for genuine connections and good conversation.','https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=900') ]));}
+Widget _post(BuildContext c,String n,String t,String im)=>Card(clipBehavior:Clip.antiAlias,child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[ListTile(leading:const CircleAvatar(child:Icon(Icons.person)),title:Text(n),subtitle:const Text('Today')),Padding(padding:const EdgeInsets.symmetric(horizontal:16),child:Text(t)),const SizedBox(height:12),Image.network(im,height:250,width:double.infinity,fit:BoxFit.cover),Row(children:[IconButton(onPressed:()=>_sheet(c,'Liked'),icon:const Icon(Icons.favorite_border)),IconButton(onPressed:()=>_sheet(c,'Comments'),icon:const Icon(Icons.comment_outlined)),IconButton(onPressed:()=>_sheet(c,'Share'),icon:const Icon(Icons.share_outlined))]) ]));
 
-class _ProfileCard extends StatelessWidget { final String name,age,desire,image; const _ProfileCard({required this.name,required this.age,required this.desire,required this.image}); @override Widget build(BuildContext context)=>Card(clipBehavior:Clip.antiAlias,margin:const EdgeInsets.only(bottom:18),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Image.network(image,height:420,width:double.infinity,fit:BoxFit.cover,errorBuilder:(_,__,___)=>const SizedBox(height:420,child:Icon(Icons.person,size:80))),Padding(padding:const EdgeInsets.fromLTRB(18,16,18,8),child:Text('$name  $age',style:const TextStyle(fontSize:23,fontWeight:FontWeight.w700))),Padding(padding:const EdgeInsets.symmetric(horizontal:18),child:Wrap(spacing:8,children:[const Chip(label:Text('Photo verified')),Chip(label:Text('♡ Desires'))])),Padding(padding:const EdgeInsets.all(14),child:Row(mainAxisAlignment:MainAxisAlignment.spaceEvenly,children:[IconButton(icon:const Icon(Icons.close),onPressed:()=>_open(context,'Passed')),IconButton(icon:const Icon(Icons.bolt),onPressed:()=>_open(context,'Ping sent')),IconButton(icon:const Icon(Icons.favorite),onPressed:()=>_open(context,'Liked'))]))])); }
-class _Post extends StatelessWidget { final String name,text,image; const _Post({required this.name,required this.text,required this.image}); @override Widget build(BuildContext context)=>Card(margin:const EdgeInsets.only(bottom:16),clipBehavior:Clip.antiAlias,child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[ListTile(title:Text(name),subtitle:const Text('Today')),Padding(padding:const EdgeInsets.symmetric(horizontal:16),child:Text(text)),const SizedBox(height:12),Image.network(image,height:260,width:double.infinity,fit:BoxFit.cover),const ListTile(leading:Icon(Icons.favorite_border),title:Text('Like   ·   Comment   ·   Share'))])); }
-class _Action extends StatelessWidget { final String label; final IconData icon; final VoidCallback onTap; const _Action({required this.label,required this.icon,required this.onTap}); @override Widget build(BuildContext context)=>Padding(padding:const EdgeInsets.only(bottom:12),child:SizedBox(width:double.infinity,height:52,child:OutlinedButton.icon(onPressed:onTap,icon:Icon(icon),label:Text(label)))); }
-class _ListTile extends StatelessWidget { final String title,sub; const _ListTile({required this.title,required this.sub}); @override Widget build(BuildContext context)=>ListTile(title:Text(title),subtitle:Text(sub),leading:const Icon(Icons.favorite_border)); }
-class _Bubble extends StatelessWidget { final String text; final bool mine; const _Bubble({required this.text,required this.mine}); @override Widget build(BuildContext context)=>Align(alignment:mine?Alignment.centerRight:Alignment.centerLeft,child:Container(margin:const EdgeInsets.only(bottom:10),padding:const EdgeInsets.all(12),decoration:BoxDecoration(color:mine?Theme.of(context).colorScheme.primaryContainer:Theme.of(context).colorScheme.surfaceContainerHighest,borderRadius:BorderRadius.circular(16)),child:Text(text))); }
-class _Verify extends StatelessWidget { final String title; final IconData icon; const _Verify({required this.title,required this.icon}); @override Widget build(BuildContext context)=>Card(child:ListTile(leading:Icon(icon),title:Text(title),subtitle:const Text('Required · private verification data'),trailing:const Icon(Icons.chevron_right))); }
-class _Plan extends StatelessWidget { final String title,price; const _Plan(this.title,this.price); @override Widget build(BuildContext context)=>Card(child:ListTile(title:Text(title),subtitle:Text(price),trailing:FilledButton(onPressed:null,child:Text('Choose')))); }
-void _open(BuildContext context,String title)=>showModalBottomSheet(context:context,builder:(_)=>SafeArea(child:Padding(padding:const EdgeInsets.all(24),child:Column(mainAxisSize:MainAxisSize.min,children:[Text(title,style:const TextStyle(fontSize:22,fontWeight:FontWeight.bold)),const SizedBox(height:12),const Text('This flow is wired into the standalone Flutter UI and can be connected to production services without mixing the legacy Kotlin project.'),const SizedBox(height:16),FilledButton(onPressed:()=>Navigator.pop(context),child:const Text('Close'))]))));
+class MapPage extends StatelessWidget{const MapPage({super.key});@override Widget build(BuildContext c)=>Scaffold(appBar:AppBar(title:const Text('Map'),actions:[IconButton(onPressed:()=>_sheet(c,'Create activity'),icon:const Icon(Icons.add_location_alt_outlined))]),body:Column(children:[const Padding(padding:EdgeInsets.all(12),child:Text('Approximate locations only · exact GPS is never exposed',textAlign:TextAlign.center)),Expanded(child:Container(margin:const EdgeInsets.all(12),decoration:BoxDecoration(borderRadius:BorderRadius.circular(28),gradient:const LinearGradient(begin:Alignment.topLeft,end:Alignment.bottomRight,colors:[Color(0xFFE7ECF4),Color(0xFFD4DCE8)])),child:Stack(children:[const Center(child:Icon(Icons.map,size:120,color:Colors.blueGrey)),...['Alex & Sam','Maya','Jordan'].asMap().entries.map((e)=>Positioned(left:40+e.key*90,top:100+e.key*70,child:Column(children:[const CircleAvatar(backgroundColor:Colors.white,child:Icon(Icons.person)),Text(e.value,style:const TextStyle(fontWeight:FontWeight.bold))]))) ]))) ]));}
+
+class Likes extends StatelessWidget{const Likes({super.key});@override Widget build(BuildContext c)=>Scaffold(appBar:AppBar(title:const Text('Likes & Pings')),body:ListView(padding:const EdgeInsets.all(12),children:[const Card(child:ListTile(leading:Icon(Icons.favorite,color:Colors.red),title:Text('Someone nearby liked you'),subtitle:Text('Upgrade to Premium to see who liked you.'))),const Card(child:ListTile(leading:Icon(Icons.bolt),title:Text('Sam sent a Ping'),subtitle:Text('Respond from this screen.'))),Card(child:ListTile(leading:const Icon(Icons.workspace_premium),title:const Text('3TRIO Premium'),subtitle:const Text('Unlimited likes + see who liked you'),onTap:()=>Navigator.push(c,MaterialPageRoute(builder:(_)=>const Premium()))) ]));}
+
+class Messages extends StatelessWidget{const Messages({super.key});@override Widget build(BuildContext c)=>Scaffold(appBar:AppBar(title:const Text('Messages'),actions:[IconButton(onPressed:()=>Navigator.push(c,MaterialPageRoute(builder:(_)=>const Settings())),icon:const Icon(Icons.settings_outlined))]),body:ListView(children:[ListTile(leading:const CircleAvatar(child:Icon(Icons.people)),title:const Text('Alex & Sam'),subtitle:const Text('Protected chat'),onTap:()=>Navigator.push(c,MaterialPageRoute(builder:(_)=>const Chat()))),const ListTile(leading:CircleAvatar(child:Icon(Icons.groups)),title:Text('Rooftop Social'),subtitle:Text('Activity chat · 5 going'))]));}
+class Chat extends StatefulWidget{const Chat({super.key});@override State<Chat> createState()=>_ChatState();}class _ChatState extends State<Chat>{final ctl=TextEditingController();final msgs=['Hey 👋','Hi, nice to meet you.'];@override Widget build(BuildContext c)=>Scaffold(appBar:AppBar(title:const Text('Protected Chat'),actions:[IconButton(onPressed:()=>_sheet(c,'Audio call'),icon:const Icon(Icons.call_outlined)),IconButton(onPressed:()=>_sheet(c,'Video call'),icon:const Icon(Icons.videocam_outlined))]),body:Column(children:[Expanded(child:ListView.builder(padding:const EdgeInsets.all(16),itemCount:msgs.length,itemBuilder:(_,i)=>Align(alignment:i.isEven?Alignment.centerLeft:Alignment.centerRight,child:Container(margin:const EdgeInsets.only(bottom:10),padding:const EdgeInsets.all(12),decoration:BoxDecoration(color:i.isEven?Colors.grey.shade200:const Color(0xFFFFE1E8),borderRadius:BorderRadius.circular(16)),child:Text(msgs[i]))))),SafeArea(child:Row(children:[IconButton(onPressed:()=>_sheet(c,'Media'),icon:const Icon(Icons.photo_outlined)),Expanded(child:TextField(controller:ctl,decoration:const InputDecoration(hintText:'Message…'))),IconButton(onPressed:(){if(ctl.text.trim().isNotEmpty)setState((){msgs.add(ctl.text.trim());ctl.clear();});},icon:const Icon(Icons.send))]))]));}
+
+class Premium extends StatelessWidget{const Premium({super.key});@override Widget build(BuildContext c)=>Scaffold(appBar:AppBar(title:const Text('3TRIO Premium')),body:ListView(padding:const EdgeInsets.all(20),children:[const Text('Unlimited likes',style:TextStyle(fontSize:28,fontWeight:FontWeight.bold)),const Text('See who liked you · Premium filters · More discovery controls'),const SizedBox(height:20),...['Monthly · ₹500','6 months · ₹2,500','Yearly · ₹4,000'].map((x)=>Card(child:ListTile(title:Text(x),trailing:FilledButton(onPressed:()=>_sheet(c,'Plan selected'),child:const Text('Choose')))))]));}
+class Settings extends StatelessWidget{const Settings({super.key});@override Widget build(BuildContext c)=>Scaffold(appBar:AppBar(title:const Text('Settings')),body:ListView(children:[SwitchListTile(value:true,onChanged:(_){},title:const Text('Incognito')),SwitchListTile(value:true,onChanged:(_){},title:const Text('Map visibility')),const ListTile(title:Text('Distance'),subtitle:Text('Kilometres')),const ListTile(title:Text('Privacy & Safety')),const ListTile(title:Text('Blocked users')),const ListTile(title:Text('Verification')),const ListTile(title:Text('Delete account'))]));}
+
+void _sheet(BuildContext c,String title)=>showModalBottomSheet(context:c,builder:(_)=>SafeArea(child:Padding(padding:const EdgeInsets.all(24),child:Column(mainAxisSize:MainAxisSize.min,children:[Text(title,style:const TextStyle(fontSize:22,fontWeight:FontWeight.bold)),const SizedBox(height:12),const Text('Flutter UI flow is ready for service integration.'),const SizedBox(height:16),FilledButton(onPressed:()=>Navigator.pop(c),child:const Text('Close'))]))));
