@@ -15,6 +15,27 @@ jobs:
           channel: stable
       - run: flutter create --platforms=android --project-name=three_trio .
       - run: sed -i 's/2.1.0/2.4.20/g' android/settings.gradle.kts
+      - name: Restore original 3TRIO branding
+        run: |
+          mkdir -p android/app/src/main/res/drawable android/app/src/main/res/mipmap-anydpi-v26 android/app/src/main/res/values
+          cat > android/app/src/main/res/values/colors.xml <<'EOF'
+          <resources><color name="primary">#FF4B4B</color></resources>
+          EOF
+          cat > android/app/src/main/res/drawable/ic_3t_logo_transparent.xml <<'EOF'
+          <vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
+            <path android:strokeColor="#FFFFFF" android:strokeWidth="6" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M35,35 c10,-10 20,5 5,15 c15,10 5,25 -5,15"/>
+            <path android:strokeColor="#FFFFFF" android:strokeWidth="6" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M65,30 v40 c0,10 -10,10 -15,5 M55,45 h20"/>
+            <path android:strokeColor="#FFFFFF" android:strokeWidth="4" android:strokeLineCap="round" android:pathData="M35,80 Q54,95 75,80"/>
+          </vector>
+          EOF
+          cat > android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml <<'EOF'
+          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+            <background android:drawable="@color/primary"/>
+            <foreground android:drawable="@drawable/ic_3t_logo_transparent"/>
+          </adaptive-icon>
+          EOF
+          cp android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
+          sed -i 's/android:label="[^"]*"/android:label="3trio"/' android/app/src/main/AndroidManifest.xml
       - run: rm -rf test
       - run: flutter pub get
       - run: flutter analyze --no-fatal-infos
