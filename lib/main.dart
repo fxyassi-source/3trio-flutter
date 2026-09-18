@@ -72,3 +72,5 @@ class Premium extends StatelessWidget{const Premium({super.key});@override Widge
 class Settings extends StatelessWidget{const Settings({super.key});@override Widget build(BuildContext c)=>Scaffold(appBar:AppBar(title:const Text('Settings')),body:ListView(children:[SwitchListTile(value:true,onChanged:(_){},title:const Text('Incognito')),SwitchListTile(value:true,onChanged:(_){},title:const Text('Map visibility')),const ListTile(title:Text('Distance'),subtitle:Text('Kilometres')),const ListTile(title:Text('Privacy & Safety')),const ListTile(title:Text('Blocked users')),const ListTile(title:Text('Verification')),const ListTile(title:Text('Delete account'))]));}
 
 void _sheet(BuildContext c,String title)=>showModalBottomSheet(context:c,builder:(_)=>SafeArea(child:Padding(padding:const EdgeInsets.all(24),child:Column(mainAxisSize:MainAxisSize.min,children:[Text(title,style:const TextStyle(fontSize:22,fontWeight:FontWeight.bold)),const SizedBox(height:12),const Text('Flutter UI flow is ready for service integration.'),const SizedBox(height:16),FilledButton(onPressed:()=>Navigator.pop(c),child:const Text('Close'))]))));
+
+// 3TRIO Flutter build trigger
