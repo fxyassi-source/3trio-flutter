@@ -533,7 +533,7 @@ class MapScreen extends StatelessWidget {
           Positioned(left: 95, top: 320, child: Chip(label: Text('Jordan'))),
         ]),
       )),
-    ]),
+    ])),
   );
 }
 class LikesScreen extends StatelessWidget {
