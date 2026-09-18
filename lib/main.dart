@@ -254,7 +254,7 @@ class DiscoverScreen extends StatelessWidget {
               Text(p.name + (p.verified ? ' ✓' : ''), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
               Text(p.age + ' · ' + p.gender, style: const TextStyle(color: Colors.white70, fontSize: 12)),
               Text('✦ ' + (80 + i).toString() + '% AI Match', style: const TextStyle(color: Colors.amber, fontSize: 11, fontWeight: FontWeight.bold)),
-            ])),
+            ]))),
           ])),
         );
       },
@@ -456,7 +456,7 @@ class _FilterState extends State<FilterSheet> {
   @override Widget build(BuildContext context) => SafeArea(child: Padding(padding: const EdgeInsets.all(22), child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
     const Text('Discovery filters', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
     Text('Age: ' + age.start.round().toString() + ' – ' + age.end.round().toString()),
-    RangeSlider(value: age, min: 18, max: 80, onChanged: (v) => setState(() => age = v)),
+    RangeSlider(values: age, min: 18, max: 80, onChanged: (v) => setState(() => age = v)),
     Text('Distance: ' + distance.round().toString() + ' km'),
     Slider(value: distance, min: 1, max: 100, onChanged: (v) => setState(() => distance = v)),
     SizedBox(width: double.infinity, child: FilledButton(onPressed: () => Navigator.pop(context), child: const Text('Apply filters'))),
