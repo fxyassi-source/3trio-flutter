@@ -1,4 +1,5 @@
 name: 3TRIO Flutter APK
+# Release build trigger
 
 on:
   push:
