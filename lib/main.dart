@@ -267,54 +267,208 @@ class MatchScreen extends StatefulWidget {
   @override
   State<MatchScreen> createState() => _MatchState();
 }
+
 class _MatchState extends State<MatchScreen> {
   int current = 0;
   final history = <int>[];
   double dx = 0;
+
   void move(int direction) {
     history.add(current);
     if (direction > 0 && current % 3 == 0) {
-      showDialog(context: context, builder: (_) => AlertDialog(
-        title: const Text("It's a Match! 💕"),
-        content: Text('You and ' + profiles[current].name + ' liked each other.'),
-        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Keep swiping')), FilledButton(onPressed: () { Navigator.pop(context); Navigator.push(context, MaterialPageRoute(builder: (_) => const ChatScreen())); }, child: const Text('Message'))],
-      ));
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text("It's a Match! 💕"),
+          content: Text('You and ${profiles[current].name} liked each other.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Keep swiping'),
+            ),
+            FilledButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ChatScreen()),
+                );
+              },
+              child: const Text('Message'),
+            ),
+          ],
+        ),
+      );
     }
-    setState(() { current = (current + 1) % profiles.length; dx = 0; });
+    setState(() {
+      current = (current + 1) % profiles.length;
+      dx = 0;
+    });
   }
+
   void rewind() {
     if (history.isEmpty) return;
-    setState(() { current = history.removeLast(); dx = 0; });
+    setState(() {
+      current = history.removeLast();
+      dx = 0;
+    });
   }
+
+  void showPing() {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Not Matched Yet!'),
+        content: const Text('Send a Ping for ₹10.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Ping ₹10'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final p = profiles[current];
     return Scaffold(
-      appBar: AppBar(title: const Text('Match'), actions: [IconButton(onPressed: rewind, icon: const Icon(Icons.undo)), IconButton(onPressed: () => showModalBottomSheet(context: context, builder: (_) => const FilterSheet()), icon: const Icon(Icons.tune))]),
-      body: Column(children: [
-        Expanded(child: GestureDetector(
-          onHorizontalDragUpdate: (d) => setState(() => dx += d.delta.dx),
-          onHorizontalDragEnd: (_) { if (dx > 100) move(1); else if (dx < -100) move(-1); else setState(() => dx = 0); },
-          child: Transform.translate(offset: Offset(dx, 0), child: Transform.rotate(angle: dx / 900, child: Padding(padding: const EdgeInsets.fromLTRB(16, 8, 16, 8), child: ClipRRect(borderRadius: BorderRadius.circular(24), child: Stack(fit: StackFit.expand, children: [
-            Image.network(p.photo, fit: BoxFit.cover),
-            Container(decoration: const BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Colors.transparent, Colors.black87]))),
-            Positioned(left: 20, right: 20, bottom: 24, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(p.name + ', ' + p.age + (p.verified ? ' ✓' : ''), style: const TextStyle(color: Colors.white, fontSize: 27, fontWeight: FontWeight.bold)),
-              Text(p.gender + ' · 10 km away', style: const TextStyle(color: Colors.white70)),
-              const SizedBox(height: 7), Text(p.bio, style: const TextStyle(color: Colors.white)), const SizedBox(height: 7),
-              const Text('✦ AI Top Match', style: TextStyle(color: Colors.amber, fontWeight: FontWeight.bold)),
-            ])),
-            if (dx > 40) const Positioned(top: 30, left: 25, child: SwipeLabel(text: 'LIKE', color: Colors.green)),
-            if (dx < -40) const Positioned(top: 30, right: 25, child: SwipeLabel(text: 'NOPE', color: Colors.red)),
-          ]))))),
-        )),
-        Padding(padding: const EdgeInsets.only(bottom: 16), child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          CircleAction(icon: Icons.undo, onTap: rewind),
-          CircleAction(icon: Icons.close, color: Colors.red, onTap: () => move(-1)),
-          CircleAction(icon: Icons.bolt, color: Colors.orange, onTap: () => showDialog(context: context, builder: (_) => AlertDialog(title: const Text('Not Matched Yet!'), content: const Text('Send a Ping for ₹10.'), actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')), FilledButton(onPressed: () => Navigator.pop(context), child: const Text('Ping ₹10'))]))),
-          CircleAction(icon: Icons.favorite, color: Colors.green, onTap: () => move(1)),
-        ])),
-      ]),
+      appBar: AppBar(
+        title: const Text('Match'),
+        actions: [
+          IconButton(onPressed: rewind, icon: const Icon(Icons.undo)),
+          IconButton(
+            onPressed: () => showModalBottomSheet(
+              context: context,
+              builder: (_) => const FilterSheet(),
+            ),
+            icon: const Icon(Icons.tune),
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: GestureDetector(
+              onHorizontalDragUpdate: (d) {
+                setState(() => dx += d.delta.dx);
+              },
+              onHorizontalDragEnd: (_) {
+                if (dx > 100) {
+                  move(1);
+                } else if (dx < -100) {
+                  move(-1);
+                } else {
+                  setState(() => dx = 0);
+                }
+              },
+              child: Transform.translate(
+                offset: Offset(dx, 0),
+                child: Transform.rotate(
+                  angle: dx / 900,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(24),
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          Image.network(p.photo, fit: BoxFit.cover),
+                          const DecoratedBox(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [Colors.transparent, Colors.black87],
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            left: 20,
+                            right: 20,
+                            bottom: 24,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${p.name}, ${p.age}${p.verified ? ' ✓' : ''}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 27,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  '${p.gender} · 10 km away',
+                                  style: const TextStyle(color: Colors.white70),
+                                ),
+                                const SizedBox(height: 7),
+                                Text(
+                                  p.bio,
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                                const SizedBox(height: 7),
+                                const Text(
+                                  '✦ AI Top Match',
+                                  style: TextStyle(
+                                    color: Colors.amber,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (dx > 40)
+                            const Positioned(
+                              top: 30,
+                              left: 25,
+                              child: SwipeLabel(text: 'LIKE', color: Colors.green),
+                            ),
+                          if (dx < -40)
+                            const Positioned(
+                              top: 30,
+                              right: 25,
+                              child: SwipeLabel(text: 'NOPE', color: Colors.red),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircleAction(icon: Icons.undo, onTap: rewind),
+                CircleAction(
+                  icon: Icons.close,
+                  color: Colors.red,
+                  onTap: () => move(-1),
+                ),
+                CircleAction(
+                  icon: Icons.bolt,
+                  color: Colors.orange,
+                  onTap: showPing,
+                ),
+                CircleAction(
+                  icon: Icons.favorite,
+                  color: Colors.green,
+                  onTap: () => move(1),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
