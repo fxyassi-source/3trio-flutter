@@ -14,6 +14,7 @@ jobs:
         with:
           channel: stable
       - run: flutter create --platforms=android --project-name=three_trio .
+      - run: sed -i 's/2.1.0/2.4.20/g' android/settings.gradle.kts
       - run: rm -rf test
       - run: flutter pub get
       - run: flutter analyze --no-fatal-infos
