@@ -327,7 +327,7 @@ class _SwipeCard extends StatelessWidget{
 class _ActionButton extends StatelessWidget{
   final IconData icon; final Color color; final VoidCallback onTap;
   const _ActionButton({required this.icon,required this.color,required this.onTap});
-  @override Widget build(BuildContext c)=>Padding(padding:const EdgeInsets.symmetric(horizontal:5),child: InkWell(onTap:onTap,child:Container(width:58,height:58,decoration:BoxDecoration(shape:BoxShape.circle,border:Border.all(color:Colors.grey),color:Theme.of(c).cardColor),child:Icon(icon,color:color)))));
+  @override Widget build(BuildContext c)=>Padding(padding:const EdgeInsets.symmetric(horizontal:5),child: InkWell(onTap:onTap,child:Container(width:58,height:58,decoration:BoxDecoration(shape:BoxShape.circle,border:Border.all(color:Colors.grey),color:Theme.of(c).cardColor),child:Icon(icon,color:color))));
 }
 
 class RestoredMessages extends StatelessWidget{
