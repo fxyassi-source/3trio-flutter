@@ -5,6 +5,7 @@ import 'services/notification_service.dart';
 import 'services/auth_service.dart';
 import 'services/firestore_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,19 +16,51 @@ Future<void> main() async {
   runApp(const TrioApp());
 }
 
-class TrioApp extends StatelessWidget {
-  const TrioApp({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: '3TRIO',
-      theme: ThemeData(useMaterial3: true, colorSchemeSeed: const Color(0xFFFF3B5C), scaffoldBackgroundColor: Colors.white),
-      home: const AgeGate(),
-    );
+enum TrioThemeMode { light, pink, dark }
+
+class TrioThemeController extends ChangeNotifier {
+  TrioThemeMode mode = TrioThemeMode.light;
+  TrioThemeController() { _load(); }
+  Future<void> _load() async {
+    final p = await SharedPreferences.getInstance();
+    final value = p.getString('trio_theme') ?? 'light';
+    mode = TrioThemeMode.values.firstWhere((e) => e.name == value, orElse: () => TrioThemeMode.light);
+    notifyListeners();
+  }
+  Future<void> setMode(TrioThemeMode value) async {
+    mode = value;
+    notifyListeners();
+    final p = await SharedPreferences.getInstance();
+    await p.setString('trio_theme', value.name);
   }
 }
 
+final trioTheme = TrioThemeController();
+
+ThemeData _themeFor(TrioThemeMode mode) {
+  if (mode == TrioThemeMode.dark) {
+    return ThemeData(useMaterial3: true, brightness: Brightness.dark, scaffoldBackgroundColor: const Color(0xFF121212),
+      colorScheme: const ColorScheme.dark(primary: Color(0xFFFF3B5C), secondary: Color(0xFF333333), surface: Color(0xFF1E1E1E), onSurface: Colors.white, onPrimary: Colors.white),
+      appBarTheme: const AppBarTheme(backgroundColor: Color(0xFF121212), foregroundColor: Colors.white),
+      cardTheme: const CardThemeData(color: Color(0xFF1E1E1E)));
+  }
+  if (mode == TrioThemeMode.pink) {
+    return ThemeData(useMaterial3: true, scaffoldBackgroundColor: const Color(0xFFFFF5F7),
+      colorScheme: const ColorScheme.light(primary: Color(0xFFFF3B5C), secondary: Color(0xFFFFE0E5), surface: Colors.white, onSurface: Color(0xFF24171A), onPrimary: Colors.white),
+      appBarTheme: const AppBarTheme(backgroundColor: Color(0xFFFFF5F7), foregroundColor: Color(0xFF24171A)),
+      cardTheme: const CardThemeData(color: Colors.white));
+  }
+  return ThemeData(useMaterial3: true, brightness: Brightness.light, scaffoldBackgroundColor: Colors.white,
+    colorScheme: const ColorScheme.light(primary: Color(0xFFFF3B5C), secondary: Color(0xFFEEEEEE), surface: Color(0xFFF5F5F5), onSurface: Colors.black, onPrimary: Colors.white),
+    cardTheme: const CardThemeData(color: Colors.white));
+}
+
+class TrioApp extends StatelessWidget {
+  const TrioApp({super.key});
+  @override Widget build(BuildContext context) => AnimatedBuilder(
+    animation: trioTheme,
+    builder: (_, __) => MaterialApp(debugShowCheckedModeBanner: false, title: '3TRIO', theme: _themeFor(trioTheme.mode), home: const HomeScreen()));
+}
 class TrioProfile {
   final String name, age, gender, bio, photo;
   final bool verified;
@@ -655,6 +688,11 @@ class _SettingsState extends State<SettingsScreen> {
   @override Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('Settings')),
     body: ListView(children: [
+      const Padding(padding: EdgeInsets.all(16), child: Text('Appearance', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
+      RadioListTile<TrioThemeMode>(title: const Text('Light'), value: TrioThemeMode.light, groupValue: trioTheme.mode, onChanged: (v) { if (v != null) trioTheme.setMode(v); }),
+      RadioListTile<TrioThemeMode>(title: const Text('Pink'), subtitle: const Text('Soft 3TRIO pink theme'), value: TrioThemeMode.pink, groupValue: trioTheme.mode, onChanged: (v) { if (v != null) trioTheme.setMode(v); }),
+      RadioListTile<TrioThemeMode>(title: const Text('Dark'), value: TrioThemeMode.dark, groupValue: trioTheme.mode, onChanged: (v) { if (v != null) trioTheme.setMode(v); }),
+      const Divider(),
       const Padding(padding: EdgeInsets.all(16), child: Text('Privacy', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
       SwitchListTile(title: const Text('Incognito'), value: incognito, onChanged: (v) => setState(() => incognito = v)),
       SwitchListTile(title: const Text('Map visibility'), value: location, onChanged: (v) => setState(() => location = v)),
