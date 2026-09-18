@@ -16,7 +16,7 @@ Future<void> main() async {
   runApp(const TrioApp());
 }
 
-enum TrioThemeMode { light, pink, dark }
+enum TrioThemeMode { light, dark }
 
 class TrioThemeController extends ChangeNotifier {
   TrioThemeMode mode = TrioThemeMode.light;
@@ -38,21 +38,37 @@ class TrioThemeController extends ChangeNotifier {
 final trioTheme = TrioThemeController();
 
 ThemeData _themeFor(TrioThemeMode mode) {
-  if (mode == TrioThemeMode.dark) {
-    return ThemeData(useMaterial3: true, brightness: Brightness.dark, scaffoldBackgroundColor: const Color(0xFF121212),
-      colorScheme: const ColorScheme.dark(primary: Color(0xFFFF3B5C), secondary: Color(0xFF333333), surface: Color(0xFF1E1E1E), onSurface: Colors.white, onPrimary: Colors.white),
-      appBarTheme: const AppBarTheme(backgroundColor: Color(0xFF121212), foregroundColor: Colors.white),
-      cardTheme: const CardThemeData(color: Color(0xFF1E1E1E)));
-  }
-  if (mode == TrioThemeMode.pink) {
-    return ThemeData(useMaterial3: true, scaffoldBackgroundColor: const Color(0xFFFFF5F7),
-      colorScheme: const ColorScheme.light(primary: Color(0xFFFF3B5C), secondary: Color(0xFFFFE0E5), surface: Colors.white, onSurface: Color(0xFF24171A), onPrimary: Colors.white),
-      appBarTheme: const AppBarTheme(backgroundColor: Color(0xFFFFF5F7), foregroundColor: Color(0xFF24171A)),
-      cardTheme: const CardThemeData(color: Colors.white));
-  }
-  return ThemeData(useMaterial3: true, brightness: Brightness.light, scaffoldBackgroundColor: Colors.white,
-    colorScheme: const ColorScheme.light(primary: Color(0xFFFF3B5C), secondary: Color(0xFFEEEEEE), surface: Color(0xFFF5F5F5), onSurface: Colors.black, onPrimary: Colors.white),
-    cardTheme: const CardThemeData(color: Colors.white));
+  final dark = mode == TrioThemeMode.dark;
+  return ThemeData(
+    useMaterial3: true,
+    brightness: dark ? Brightness.dark : Brightness.light,
+    scaffoldBackgroundColor: dark ? const Color(0xFF121212) : const Color(0xFFFFFFFF),
+    colorScheme: dark
+        ? const ColorScheme.dark(
+            primary: Color(0xFFFF3B5C),
+            secondary: Color(0xFF333333),
+            surface: Color(0xFF1E1E1E),
+            onSurface: Colors.white,
+            onPrimary: Colors.white,
+          )
+        : const ColorScheme.light(
+            primary: Color(0xFFFF3B5C),
+            secondary: Color(0xFFEEEEEE),
+            surface: Color(0xFFF5F5F5),
+            onSurface: Colors.black,
+            onPrimary: Colors.white,
+          ),
+    appBarTheme: AppBarTheme(
+      backgroundColor: dark ? const Color(0xFF121212) : Colors.white,
+      foregroundColor: dark ? Colors.white : Colors.black,
+      elevation: 0,
+    ),
+    cardTheme: CardThemeData(
+      color: dark ? const Color(0xFF1E1E1E) : Colors.white,
+      elevation: dark ? 0 : 1,
+    ),
+    dividerColor: dark ? const Color(0xFF333333) : const Color(0xFFE5E5E5),
+  );
 }
 
 class TrioApp extends StatelessWidget {
@@ -61,6 +77,42 @@ class TrioApp extends StatelessWidget {
     animation: trioTheme,
     builder: (_, __) => MaterialApp(debugShowCheckedModeBanner: false, title: '3TRIO', theme: _themeFor(trioTheme.mode), home: const HomeScreen()));
 }
+class TrioLogo extends StatelessWidget {
+  final double size;
+  const TrioLogo({super.key, this.size = 64});
+  @override
+  Widget build(BuildContext context) => CustomPaint(
+    size: Size.square(size),
+    painter: _TrioLogoPainter(),
+  );
+}
+
+class _TrioLogoPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final s = size.width / 108.0;
+    canvas.save();
+    canvas.scale(s, s);
+    final bg = Paint()..color = const Color(0xFFFF4B4B);
+    canvas.drawRect(const Rect.fromLTWH(0, 0, 108, 108), bg);
+    final p = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..strokeWidth = 6;
+    final three = Path()..moveTo(35,35)..cubicTo(45,25,55,40,40,50)..cubicTo(55,60,45,75,35,65);
+    canvas.drawPath(three,p);
+    final t = Path()..moveTo(65,30)..lineTo(65,70)..cubicTo(65,80,55,80,50,75)..moveTo(55,45)..lineTo(75,45);
+    canvas.drawPath(t,p);
+    final under = Path()..moveTo(35,80)..quadraticBezierTo(54,95,75,80);
+    p.strokeWidth=4;
+    canvas.drawPath(under,p);
+    canvas.restore();
+  }
+  @override bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
 class TrioProfile {
   final String name, age, gender, bio, photo;
   final bool verified;
@@ -82,7 +134,9 @@ class AgeGate extends StatelessWidget {
     body: SafeArea(child: Center(child: Padding(
       padding: const EdgeInsets.all(28),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
-        const Text('3TRIO', style: TextStyle(fontSize: 48, fontWeight: FontWeight.w900, letterSpacing: 5, color: Color(0xFFFF3B5C))),
+        const TrioLogo(size: 88),
+        const SizedBox(height: 8),
+        const Text('3TRIO', style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, letterSpacing: 5, color: Color(0xFFFF3B5C))),
         const SizedBox(height: 12),
         const Text('Meet openly. Connect intentionally.', style: TextStyle(fontSize: 18), textAlign: TextAlign.center),
         const SizedBox(height: 16),
@@ -690,7 +744,6 @@ class _SettingsState extends State<SettingsScreen> {
     body: ListView(children: [
       const Padding(padding: EdgeInsets.all(16), child: Text('Appearance', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
       RadioListTile<TrioThemeMode>(title: const Text('Light'), value: TrioThemeMode.light, groupValue: trioTheme.mode, onChanged: (v) { if (v != null) trioTheme.setMode(v); }),
-      RadioListTile<TrioThemeMode>(title: const Text('Pink'), subtitle: const Text('Soft 3TRIO pink theme'), value: TrioThemeMode.pink, groupValue: trioTheme.mode, onChanged: (v) { if (v != null) trioTheme.setMode(v); }),
       RadioListTile<TrioThemeMode>(title: const Text('Dark'), value: TrioThemeMode.dark, groupValue: trioTheme.mode, onChanged: (v) { if (v != null) trioTheme.setMode(v); }),
       const Divider(),
       const Padding(padding: EdgeInsets.all(16), child: Text('Privacy', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
