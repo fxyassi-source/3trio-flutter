@@ -502,7 +502,7 @@ class _PostState extends State<PostCard> {
     Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: Text(widget.text)),
     const SizedBox(height: 10), Image.network(widget.image, height: 260, width: double.infinity, fit: BoxFit.cover),
     Row(children: [IconButton(onPressed: () => setState(() => liked = !liked), icon: Icon(liked ? Icons.favorite : Icons.favorite_border, color: liked ? Colors.red : null)), IconButton(onPressed: () => _message(context, 'Comments', 'Comment composer opened.'), icon: const Icon(Icons.comment_outlined)), IconButton(onPressed: () => _message(context, 'Share', 'Share action selected.'), icon: const Icon(Icons.share_outlined))]),
-  ]);
+  ]));
 }
 
 class MapScreen extends StatelessWidget {
@@ -532,7 +532,7 @@ class MessagesScreen extends StatelessWidget {
   @override Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Messages')), body: ListView(children: [
     ListTile(leading: CircleAvatar(backgroundImage: NetworkImage(profiles[0].photo)), title: Text(profiles[0].name), subtitle: const Text('Protected chat'), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ChatScreen()))),
     ListTile(leading: CircleAvatar(backgroundImage: NetworkImage(profiles[1].photo)), title: Text(profiles[1].name), subtitle: const Text('New connection'), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ChatScreen()))),
-  ]);
+  ]));
 }
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -635,7 +635,7 @@ class VerificationScreen extends StatelessWidget {
   const VerificationScreen({super.key});
   @override Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Verification')), body: ListView(padding: const EdgeInsets.all(12), children: [
     _card(context, Icons.camera_alt, 'Photo verification'), _card(context, Icons.badge, 'Government ID'), _card(context, Icons.mic, 'Voice verification'),
-  ]);
+  ]));
 }
 Widget _card(BuildContext c, IconData icon, String title) => Card(child: ListTile(leading: Icon(icon), title: Text(title), trailing: TextButton(onPressed: () => _message(c, title, 'Verification flow opened.'), child: const Text('Start'))));
 
@@ -646,7 +646,7 @@ class PremiumScreen extends StatelessWidget {
     const Text('Unlimited likes · See who liked you · Rewind · Premium filters'),
     const SizedBox(height: 18),
     _plan(context, 'Monthly · ₹500'), _plan(context, '6 Months · ₹2,500'), _plan(context, 'Yearly · ₹4,000'),
-  ]);
+  ]));
 }
 Widget _plan(BuildContext c, String text) => Card(child: ListTile(title: Text(text), trailing: FilledButton(onPressed: () => _message(c, 'Premium', 'Purchase flow opened.'), child: const Text('Choose'))));
 
