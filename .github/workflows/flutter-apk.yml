@@ -45,3 +45,5 @@ jobs:
         with:
           name: 3trio-release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
+
+# rebuild
